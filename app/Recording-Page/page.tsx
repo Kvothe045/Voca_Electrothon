@@ -1,15 +1,29 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { useReactMediaRecorder } from "react-media-recorder";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "../components/footer";
 import HeroSection from "../components/hero-section";
-import { resources } from "../api/resources"; // Adjust the path if needed
+import { resources } from "../api/resources"; // Adjust path if needed
 
-// Modal Popup Component with smooth entrance animation
+// Custom hook to safely use react-media-recorder.
+function useSafeReactMediaRecorder(config: any) {
+  if (typeof window !== "undefined" && window.Worker) {
+    const { useReactMediaRecorder } = require("react-media-recorder");
+    return useReactMediaRecorder(config);
+  } else {
+    return {
+      status: "idle",
+      startRecording: () => {},
+      stopRecording: () => {},
+      mediaBlobUrl: null,
+    };
+  }
+}
+
+// Modal Popup Component.
 interface UploadPopupProps {
   videoUrl: string;
   onClose: () => void;
@@ -19,25 +33,20 @@ interface UploadPopupProps {
 const UploadPopup: React.FC<UploadPopupProps> = ({ videoUrl, onClose, onViewReport }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 animate-fadeIn">
-      <div className="bg-white p-6 rounded-xl shadow-2xl transform transition-all duration-500">
+      <div className="bg-white p-6 rounded-xl shadow-2xl transition-all duration-500">
         <h2 className="text-2xl font-bold mb-3 text-gray-800">Upload Successful!</h2>
         <p className="mb-3 text-gray-600">Your video has been uploaded successfully.</p>
         <p className="mb-3 break-all text-gray-700 text-sm">
           <span className="font-semibold">URL:</span>{" "}
-          <a
-            href={videoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 underline"
-          >
+          <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
             {videoUrl}
           </a>
         </p>
         <div className="flex justify-end space-x-4">
-          <button onClick={onClose} className="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition text-sm">
+          <button onClick={onClose} className="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-md text-sm">
             Close
           </button>
-          <button onClick={onViewReport} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition text-sm">
+          <button onClick={onViewReport} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm">
             View Report
           </button>
         </div>
@@ -53,7 +62,6 @@ const RecordingPage: React.FC = () => {
   const searchParams = useSearchParams();
   const topicFromQuery = searchParams.get("topic");
 
-  // States for recording, upload, and UI animations
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -67,12 +75,12 @@ const RecordingPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showKeywords, setShowKeywords] = useState<boolean>(false);
 
-  const { status, startRecording, stopRecording, mediaBlobUrl } = useReactMediaRecorder({
+  // Use safe react-media-recorder hook.
+  const { status, startRecording, stopRecording, mediaBlobUrl } = useSafeReactMediaRecorder({
     video: true,
     audio: true,
   });
 
-  // If topic is not provided via query, fetch one from endpoint
   useEffect(() => {
     if (!topicFromQuery) {
       const fetchTopic = async () => {
@@ -88,28 +96,20 @@ const RecordingPage: React.FC = () => {
           setIsLoadingTopic(false);
         }
       };
-
       fetchTopic();
     }
   }, [topicFromQuery]);
 
-  // Dynamically update keywords based on the topic using resources.js
   useEffect(() => {
     if (topic) {
       const matchedResource = resources.find(
         (res) => res.title.toLowerCase() === topic.toLowerCase()
       );
-      if (matchedResource) {
-        setKeywords(matchedResource.keywords);
-      } else {
-        setKeywords([]);
-      }
-      // Reset keyword visibility when topic changes
+      setKeywords(matchedResource ? matchedResource.keywords : []);
       setShowKeywords(false);
     }
   }, [topic]);
 
-  // Update recording timer every second
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isRecording) {
@@ -120,22 +120,25 @@ const RecordingPage: React.FC = () => {
     return () => clearInterval(timer);
   }, [isRecording]);
 
-  // Get camera stream for live preview
   const getStream = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast.error("Camera access is not available. Use HTTPS and a supported browser.");
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     } catch (error) {
-      console.error("Error obtaining media stream:", error);
+      console.error("Error accessing media stream:", error);
       toast.error("Failed to access your camera and microphone.");
     }
   };
 
   const handleStartRecording = async () => {
     setIsRecording(true);
-    setSelectedFile(null); // Clear any selected file when starting to record
+    setSelectedFile(null);
     await getStream();
     startRecording();
   };
@@ -152,10 +155,8 @@ const RecordingPage: React.FC = () => {
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
-      // Check if the file is a video
       if (file.type.startsWith("video/")) {
         setSelectedFile(file);
-        // Clear any recorded video when a file is selected
         if (videoRef.current && videoRef.current.srcObject) {
           const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
           tracks.forEach((track) => track.stop());
@@ -168,9 +169,7 @@ const RecordingPage: React.FC = () => {
   };
 
   const triggerFileInput = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    fileInputRef.current?.click();
   };
 
   const handleUpload = async () => {
@@ -178,25 +177,24 @@ const RecordingPage: React.FC = () => {
       toast.error("No video to upload!");
       return;
     }
-    
     try {
       setIsUploading(true);
       setUploadProgress(0);
-      
+
       let blob: Blob;
-      
       if (selectedFile) {
         blob = selectedFile;
       } else {
-        blob = await fetch(mediaBlobUrl).then((res) => res.blob());
+        blob = await fetch(mediaBlobUrl as string).then((res) => res.blob());
       }
-      
+
+      // Upload video to Cloudinary.
       const formData = new FormData();
       formData.append("file", blob, selectedFile ? selectedFile.name : "video.mp4");
       formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET as string);
 
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-      const response = await axios.post(
+      const cloudinaryResponse = await axios.post(
         `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
         formData,
         {
@@ -209,18 +207,52 @@ const RecordingPage: React.FC = () => {
           },
         }
       );
-      const videoUrl = response.data.secure_url;
+
+      const videoUrl = cloudinaryResponse.data.secure_url;
       toast.success("Video Uploaded Successfully!");
       setIsUploaded(true);
       setUploadedVideoUrl(videoUrl);
       setShowPopup(true);
 
-      // Send video URL to your backend API for saving to a file at the project root.
-      await axios.post("/api/v1/video/save", { videoUrl, topic });
-      setIsUploading(false);
+      // Prepare payload for the analysis endpoint.
+      const analysisPayload = {
+        verificationHash:
+          "8214fb8d89789cb42c3aaa797d92db4865b696d01ea36f93835f2208a8f5fbb2760376d0fc8653f4d68b5a49e0cdb263f418529c028970eb1385d951197005e8",
+        reportID: "83921234",
+        activityName: topic,
+        videoID: "57284921",
+        videoLink: videoUrl,
+      };
+
+      console.log("Sending POST request to video analysis endpoint with payload:", analysisPayload);
+
+      // Send the analysis request.
+      const analysisResponse = await axios.post(
+        "http://192.168.42.175:8000/api/videoanalysis",
+        analysisPayload,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      console.log("Video Analysis Response:", analysisResponse.data);
+      toast.info("Analysis Response: " + JSON.stringify(analysisResponse.data));
+
+      // Start long polling GET request for the JSON report.
+      console.log("Starting long polling GET request for video JSON...");
+      const videoJsonResponse = await axios.get("http://192.168.42.175:8000/api/videojson/", {
+        headers: { Accept: "application/json" },
+        timeout: 0, // Wait indefinitely until the JSON is available.
+      });
+      console.log("Video JSON Response:", videoJsonResponse.data);
+      toast.success("Video JSON Analysis received!");
+
+      // Store the JSON report in localStorage.
+      localStorage.setItem("videoReport", JSON.stringify(videoJsonResponse.data));
+
+      // Redirect to the report page.
+      router.push("/report-page");
     } catch (error) {
-      console.error("Upload failed:", error);
-      toast.error("Failed to upload video.");
+      console.error("Error during video upload/analysis:", error);
+      toast.error("Failed to upload video or complete analysis.");
+    } finally {
       setIsUploading(false);
     }
   };
@@ -228,7 +260,7 @@ const RecordingPage: React.FC = () => {
   const handleClosePopup = () => setShowPopup(false);
   const handleViewReport = () => {
     setShowPopup(false);
-    router.push("/report");
+    router.push("/report-page");
   };
 
   return (
@@ -238,12 +270,9 @@ const RecordingPage: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-grow container mx-auto px-4 pt-20 pb-8">
-        {/* Topic Title Section */}
         <div className="text-center mb-6 animate-fadeIn">
           <div className="inline-block bg-gradient-to-r from-blue-700 to-purple-700 px-6 py-3 rounded-lg shadow-lg">
-            <h2 className="text-xl md:text-2xl font-bold mb-1">
-              {isLoadingTopic ? "Loading topic..." : topic}
-            </h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-1">{isLoadingTopic ? "Loading topic..." : topic}</h2>
             <div className="h-0.5 w-16 bg-blue-400 mx-auto mt-1"></div>
           </div>
         </div>
@@ -252,8 +281,8 @@ const RecordingPage: React.FC = () => {
           <p className="text-sm font-semibold">Status: {status}</p>
           {isRecording && <p className="text-xs mt-1">Recording Time: {recordingTime}s</p>}
         </div>
-        
-        {/* Enhanced Video Section - Enlarged Recording Area */}
+
+        {/* Video Preview Section */}
         <div className="flex justify-center">
           <div className="relative bg-gray-800 rounded-xl shadow-2xl overflow-hidden w-full max-w-4xl">
             {isRecording && (
@@ -268,7 +297,7 @@ const RecordingPage: React.FC = () => {
             {isRecording ? (
               <video ref={videoRef} autoPlay className="w-full object-cover h-[600px]" />
             ) : mediaBlobUrl ? (
-              <video src={mediaBlobUrl} controls className="w-full object-cover h-[600px]" />
+              <video src={mediaBlobUrl as string} controls className="w-full object-cover h-[600px]" />
             ) : selectedFile ? (
               <div className="w-full h-[600px] flex flex-col items-center justify-center bg-gray-900 bg-opacity-80">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-blue-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -286,8 +315,7 @@ const RecordingPage: React.FC = () => {
                 <p className="text-xs text-gray-400">Record a video or select one from your computer</p>
               </div>
             )}
-            
-            {/* Keywords Section */}
+
             <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 backdrop-blur-sm p-4">
               {showKeywords ? (
                 <div className="flex flex-wrap justify-center gap-2">
@@ -309,91 +337,76 @@ const RecordingPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Upload and Recording Controls */}
+        {/* Upload & Recording Controls */}
         <div className="mt-6 flex flex-wrap justify-center gap-4">
-          {/* File upload input (hidden) */}
-          <input 
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileSelect}
-            accept="video/*"
-            className="hidden"
-          />
-          
-          {/* Recording Controls */}
-          <div className="flex flex-wrap justify-center gap-4">
-            {!isRecording && !mediaBlobUrl && !selectedFile && (
-              <>
-                <button
-                  onClick={handleStartRecording}
-                  className="px-5 py-2 bg-green-600 hover:bg-green-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium"
-                >
-                  <div className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                    Record Video
-                  </div>
-                </button>
-                
-                <button
-                  onClick={triggerFileInput}
-                  className="px-5 py-2 bg-purple-600 hover:bg-purple-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium"
-                >
-                  <div className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    Upload from PC
-                  </div>
-                </button>
-              </>
-            )}
-            
-            {isRecording && (
+          <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="video/*" className="hidden" />
+          {!isRecording && !mediaBlobUrl && !selectedFile && (
+            <>
               <button
-                onClick={handleStopRecording}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium"
+                onClick={handleStartRecording}
+                className="px-5 py-2 bg-green-600 hover:bg-green-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium"
               >
                 <div className="flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14" />
                   </svg>
-                  Stop Recording
+                  Record Video
                 </div>
               </button>
-            )}
-            
-            {(mediaBlobUrl || selectedFile) && !isRecording && !isUploaded && (
-              <div className="flex flex-wrap justify-center gap-4">
-                <button
-                  onClick={handleUpload}
-                  disabled={isUploading}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium disabled:opacity-50"
-                >
-                  <div className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                    </svg>
-                    {isUploading ? "Uploading..." : "Upload Video"}
-                  </div>
-                </button>
-                
-                <button
-                  onClick={() => window.location.reload()}
-                  className="px-5 py-2 bg-gray-600 hover:bg-gray-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium"
-                >
-                  <div className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Cancel
-                  </div>
-                </button>
+              <button
+                onClick={triggerFileInput}
+                className="px-5 py-2 bg-purple-600 hover:bg-purple-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium"
+              >
+                <div className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9" />
+                  </svg>
+                  Upload from PC
+                </div>
+              </button>
+            </>
+          )}
+          {isRecording && (
+            <button
+              onClick={handleStopRecording}
+              className="px-5 py-2 bg-red-600 hover:bg-red-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium"
+            >
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4" />
+                </svg>
+                Stop Recording
               </div>
-            )}
-          </div>
+            </button>
+          )}
+          {(mediaBlobUrl || selectedFile) && !isRecording && !isUploaded && (
+            <div className="flex flex-wrap justify-center gap-4">
+              <button
+                onClick={handleUpload}
+                disabled={isUploading}
+                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium disabled:opacity-50"
+              >
+                <div className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  {isUploading ? "Uploading..." : "Upload Video"}
+                </div>
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="px-5 py-2 bg-gray-600 hover:bg-gray-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium"
+              >
+                <div className="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Cancel
+                </div>
+              </button>
+            </div>
+          )}
         </div>
 
         {isUploading && (
@@ -410,12 +423,10 @@ const RecordingPage: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <Footer />     
+      <Footer />
 
       {/* Modal Popup */}
-      {showPopup && (
-        <UploadPopup videoUrl={uploadedVideoUrl} onClose={handleClosePopup} onViewReport={handleViewReport} />
-      )}
+      {showPopup && <UploadPopup videoUrl={uploadedVideoUrl} onClose={handleClosePopup} onViewReport={handleViewReport} />}
     </div>
   );
 };
