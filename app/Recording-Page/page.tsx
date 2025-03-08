@@ -6,6 +6,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "../components/footer";
+import HeroSection from "../components/hero-section";
+import { resources } from "../api/resources"; // Adjust the path if needed
 
 // Modal Popup Component with smooth entrance animation
 interface UploadPopupProps {
@@ -60,9 +62,10 @@ const RecordingPage: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [recordingTime, setRecordingTime] = useState<number>(0);
   const [topic, setTopic] = useState<string>(topicFromQuery || "AI: Boon or Bane?");
-  const [keywords, setKeywords] = useState<string[]>(["artificial intelligence", "technology", "ethics", "future", "society"]);
+  const [keywords, setKeywords] = useState<string[]>([]);
   const [isLoadingTopic, setIsLoadingTopic] = useState<boolean>(!topicFromQuery);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showKeywords, setShowKeywords] = useState<boolean>(false);
 
   const { status, startRecording, stopRecording, mediaBlobUrl } = useReactMediaRecorder({
     video: true,
@@ -78,13 +81,9 @@ const RecordingPage: React.FC = () => {
           const response = await axios.get("/api/v1/generate-topic");
           if (response.data && response.data.topic) {
             setTopic(response.data.topic);
-            if (response.data.keywords && response.data.keywords.length > 0) {
-              setKeywords(response.data.keywords);
-            }
           }
         } catch (error) {
           console.error("Error fetching topic:", error);
-          // Keep default topic and keywords
         } finally {
           setIsLoadingTopic(false);
         }
@@ -93,6 +92,22 @@ const RecordingPage: React.FC = () => {
       fetchTopic();
     }
   }, [topicFromQuery]);
+
+  // Dynamically update keywords based on the topic using resources.js
+  useEffect(() => {
+    if (topic) {
+      const matchedResource = resources.find(
+        (res) => res.title.toLowerCase() === topic.toLowerCase()
+      );
+      if (matchedResource) {
+        setKeywords(matchedResource.keywords);
+      } else {
+        setKeywords([]);
+      }
+      // Reset keyword visibility when topic changes
+      setShowKeywords(false);
+    }
+  }, [topic]);
 
   // Update recording timer every second
   useEffect(() => {
@@ -171,10 +186,8 @@ const RecordingPage: React.FC = () => {
       let blob: Blob;
       
       if (selectedFile) {
-        // Use the selected file directly
         blob = selectedFile;
       } else {
-        // Convert blob URL into an actual Blob
         blob = await fetch(mediaBlobUrl).then((res) => res.blob());
       }
       
@@ -221,16 +234,7 @@ const RecordingPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-900 via-purple-900 to-black text-white">
       {/* Header */}
-      <header className="w-full bg-black bg-opacity-60 backdrop-blur-lg p-4 shadow-lg fixed top-0 z-40">
-        <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">VOCA Video Recorder</h1>
-          <nav className="space-x-4 text-sm">
-            <a href="/" className="hover:text-blue-300 transition">Home</a>
-            <a href="/about" className="hover:text-blue-300 transition">About</a>
-            <a href="/contact" className="hover:text-blue-300 transition">Contact</a>
-          </nav>
-        </div>
-      </header>
+      <HeroSection />
 
       {/* Main Content */}
       <main className="flex-grow container mx-auto px-4 pt-20 pb-8">
@@ -284,15 +288,23 @@ const RecordingPage: React.FC = () => {
             )}
             
             {/* Keywords Section */}
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 backdrop-blur-sm p-2">
-              <div className="flex flex-wrap justify-center gap-1.5">
-                <span className="font-bold text-blue-300 text-xs mr-1">Keywords:</span>
-                {keywords.map((keyword, index) => (
-                  <span key={index} className="px-2 py-0.5 bg-blue-600 bg-opacity-50 rounded-full text-xs">
-                    {keyword}
-                  </span>
-                ))}
-              </div>
+            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 backdrop-blur-sm p-4">
+              {showKeywords ? (
+                <div className="flex flex-wrap justify-center gap-2">
+                  <span className="font-bold text-blue-300 text-sm mr-2">Keywords:</span>
+                  {keywords.map((keyword, index) => (
+                    <span key={index} className="px-3 py-1 bg-blue-600 bg-opacity-50 rounded-full text-sm">
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex justify-center">
+                  <button onClick={() => setShowKeywords(true)} className="text-green-500 text-xl font-bold">
+                    Get Keywords
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -369,10 +381,7 @@ const RecordingPage: React.FC = () => {
                 </button>
                 
                 <button
-                  onClick={() => {
-                    setSelectedFile(null);
-                    if (fileInputRef.current) fileInputRef.current.value = "";
-                  }}
+                  onClick={() => window.location.reload()}
                   className="px-5 py-2 bg-gray-600 hover:bg-gray-700 rounded-full shadow-lg transition transform hover:scale-105 text-sm font-medium"
                 >
                   <div className="flex items-center">
