@@ -37,17 +37,14 @@ const UploadPopup: React.FC<UploadPopupProps> = ({ videoUrl, onClose, onViewRepo
         <h2 className="text-2xl font-bold mb-3 text-gray-800">Upload Successful!</h2>
         <p className="mb-3 text-gray-600">Your video has been uploaded successfully.</p>
         <p className="mb-3 break-all text-gray-700 text-sm">
-          <span className="font-semibold">URL:</span>{" "}
-          <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+          {/* <span className="font-semibold">URL:</span>{" "} */}
+          {/* <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
             {videoUrl}
-          </a>
+          </a> */}
         </p>
         <div className="flex justify-end space-x-4">
           <button onClick={onClose} className="px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white rounded-md text-sm">
             Close
-          </button>
-          <button onClick={onViewReport} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm">
-            View Report
           </button>
         </div>
       </div>
