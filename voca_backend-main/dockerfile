@@ -1,0 +1,41 @@
+# Use Ubuntu 22.04 LTS as the base image
+FROM ubuntu:22.04
+
+# Avoid prompts from apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set up timezone info to avoid prompts
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Update and install dependencies
+COPY packages/ /tmp/packages/
+RUN apt-get update && \
+    xargs -a /tmp/packages/packages.txt apt-get install -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set Python 3.11 as the default python
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+
+# Set work directory
+WORKDIR /app
+
+# Install Python dependencies
+RUN pip install --upgrade pip && pip install -r /tmp/packages/requirements.txt
+
+# Copy project
+COPY . .
+
+# Expose the ports for RabbitMQ and the app
+EXPOSE 8000 5672 15672 5432
+
+# clean up
+RUN rm -rf /tmp
+
+# Start RabbitMQ server and then run Django and Celery
+#CMD ["sh", "-c", "service rabbitmq-server start && celery -A voca_backend worker --loglevel=info & python3 manage.py runserver 0.0.0.0:8000"]

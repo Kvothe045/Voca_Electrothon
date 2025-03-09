@@ -1,0 +1,223 @@
+[2024-08-26 10:27:28,514: INFO/MainProcess] Task api.tasks.main[c219fd5c-e561-448c-9db2-17a3579a736d] received
+[2024-08-26 10:27:28,515: WARNING/ForkPoolWorker-1] Working on 123 - 123
+[2024-08-26 10:27:28,515: WARNING/ForkPoolWorker-1] Started processing
+[2024-08-26 10:27:28,515: ERROR/ForkPoolWorker-1] save dir is: data/video_output/123
+[2024-08-26 10:27:28,516: WARNING/ForkPoolWorker-1] Video path: data/video_input/123.mp4
+[2024-08-26 10:27:28,517: WARNING/ForkPoolWorker-1] Audio output path: data/video_output/123/123.wav
+[2024-08-26 10:27:28,584: WARNING/ForkPoolWorker-1] MoviePy - Writing audio in data/video_output/123/123.wav
+[2024-08-26 10:27:28,585: WARNING/ForkPoolWorker-1] chunk:   0%|          | 0/1361 [00:00<?, ?it/s, now=None]
+[2024-08-26 10:27:28,685: WARNING/ForkPoolWorker-1] chunk:  50%|#####     | 682/1361 [00:00<00:00, 6815.31it/s, now=None]
+[2024-08-26 10:27:28,786: WARNING/ForkPoolWorker-1]                                                                      
+[2024-08-26 10:27:28,786: WARNING/ForkPoolWorker-1] 
+[2024-08-26 10:27:28,787: WARNING/ForkPoolWorker-1] MoviePy - Done.
+[2024-08-26 10:27:28,791: WARNING/ForkPoolWorker-1] Audio file generated: data/video_output/123/123.wav
+[2024-08-26 10:27:28,791: WARNING/ForkPoolWorker-1] Starting Video analysis
+[2024-08-26 10:27:41,753: INFO/MainProcess] Task api.tasks.main[d7342a55-3e2b-42b8-a267-f8039d52285c] received
+[2024-08-26 10:27:41,754: WARNING/ForkPoolWorker-3] Working on 1223 - 1223
+[2024-08-26 10:27:41,754: WARNING/ForkPoolWorker-3] Started processing
+[2024-08-26 10:27:41,755: ERROR/ForkPoolWorker-3] save dir is: data/video_output/1223
+[2024-08-26 10:27:41,756: WARNING/ForkPoolWorker-3] Video path: data/video_input/1223.mp4
+[2024-08-26 10:27:41,756: WARNING/ForkPoolWorker-3] Audio output path: data/video_output/1223/1223.wav
+[2024-08-26 10:27:41,832: WARNING/ForkPoolWorker-3] MoviePy - Writing audio in data/video_output/1223/1223.wav
+[2024-08-26 10:27:41,833: WARNING/ForkPoolWorker-3] chunk:   0%|          | 0/1361 [00:00<?, ?it/s, now=None]
+[2024-08-26 10:27:41,934: WARNING/ForkPoolWorker-3] chunk:  46%|####6     | 631/1361 [00:00<00:00, 6309.43it/s, now=None]
+[2024-08-26 10:27:42,034: WARNING/ForkPoolWorker-3] chunk:  95%|#########4| 1289/1361 [00:00<00:00, 6466.35it/s, now=None]
+[2024-08-26 10:27:42,045: WARNING/ForkPoolWorker-3]                                                                       
+[2024-08-26 10:27:42,045: WARNING/ForkPoolWorker-3] 
+[2024-08-26 10:27:42,046: WARNING/ForkPoolWorker-3] MoviePy - Done.
+[2024-08-26 10:27:42,049: WARNING/ForkPoolWorker-3] Audio file generated: data/video_output/1223/1223.wav
+[2024-08-26 10:27:42,050: WARNING/ForkPoolWorker-3] Starting Video analysis
+[2024-08-26 10:27:51,288: WARNING/ForkPoolWorker-1] Finishing video analysis
+[2024-08-26 10:27:51,289: WARNING/ForkPoolWorker-1] Video analysis output path: {'Facial Expressions (Percentage)': '90%', 'Hand Gesture Rating (out of 10)': 7.717215326497572, 'Body Posture Rating': 'Good', 'Overall Confidence Report': 'Your overall performance is excellent. Keep up the good work!'}
+[2024-08-26 10:28:01,583: WARNING/ForkPoolWorker-1] Speech to text result: gentleman today I will speak on the topic online education so as we all know that online education was introduced very early than the covid-19 but it was primarily given importance mostly in the covid-19 so as we can see that many apps were launched for online education many websites were launched and Group of Institutions schools all of them used these apps like Microsoft teams app Zoom app and many words two sides and online education also have merits and demerits see the lecture which is being recorded by the teacher again and again if you have some doubt or some query he can watch the lecture over and over again now I will talk about some demerits of the online education the demerits in world
+[2024-08-26 10:28:01,583: WARNING/ForkPoolWorker-1] Starting audio analysis
+[2024-08-26 10:28:02,178: WARNING/ForkPoolWorker-1] Error analyzing clarity: ``audio_data`` must be audio data
+[2024-08-26 10:28:02,387: WARNING/ForkPoolWorker-1] Finishing video analysis
+[2024-08-26 10:28:02,387: WARNING/ForkPoolWorker-1] Audio analysis output path: {'Speech Rate (words per minute)': '123.48', 'Fluency': 'Fluent', 'Pauses': 1.987, 'Pitch and Tone Variations': 'High variations', 'Word Emphasis': 'Lacks emphasis', 'Tone Analysis': 'Positive tone', 'Pace Analysis': 'Moderate pace', 'Clarity Analysis': 'Unable to analyze clarity', 'Volume and Energy Analysis': 'High volume and energy'}
+[2024-08-26 10:28:05,306: WARNING/ForkPoolWorker-3] Finishing video analysis
+[2024-08-26 10:28:05,307: WARNING/ForkPoolWorker-3] Video analysis output path: {'Facial Expressions (Percentage)': '90%', 'Hand Gesture Rating (out of 10)': 7.717215326497572, 'Body Posture Rating': 'Good', 'Overall Confidence Report': 'Your overall performance is excellent. Keep up the good work!'}
+[2024-08-26 10:28:08,222: WARNING/ForkPoolWorker-3] Speech to text result: gentleman today I will speak on the topic online education so as we all know that online education was introduced very early than the covid-19 but it was primarily given importance mostly in the covid-19 so as we can see that many apps were launched for online education many websites were launched and Group of Institutions schools all of them used these apps like Microsoft teams app Zoom app and many words two sides and online education also have merits and demerits see the lecture which is being recorded by the teacher again and again if you have some doubt or some query he can watch the lecture over and over again now I will talk about some demerits of the online education the demerits in world
+[2024-08-26 10:28:08,222: WARNING/ForkPoolWorker-3] Starting audio analysis
+[2024-08-26 10:28:09,576: WARNING/ForkPoolWorker-3] Error analyzing clarity: ``audio_data`` must be audio data
+[2024-08-26 10:28:09,797: WARNING/ForkPoolWorker-3] Finishing video analysis
+[2024-08-26 10:28:09,797: WARNING/ForkPoolWorker-3] Audio analysis output path: {'Speech Rate (words per minute)': '123.48', 'Fluency': 'Fluent', 'Pauses': 1.987, 'Pitch and Tone Variations': 'High variations', 'Word Emphasis': 'Lacks emphasis', 'Tone Analysis': 'Positive tone', 'Pace Analysis': 'Moderate pace', 'Clarity Analysis': 'Unable to analyze clarity', 'Volume and Energy Analysis': 'High volume and energy'}
+[2024-08-26 10:28:12,075: WARNING/ForkPoolWorker-1] Gemini report output: **Grammatical Errors**
+    - There are no grammatical errors.
+
+---
+
+**Relevance**
+    - *Relevance percentage:* 20%
+    - *Non-relevant parts:*
+        - "see the lecture which is being recorded by the teacher again and again if you have some doubt or some query he can watch the lecture over and over again"
+        - "now I will talk about some demerits of the online education the demerits in world"
+
+---
+
+**Repetition**
+    - There is no repetition.
+
+---
+
+**Vocabulary**
+    - The speaker's vocabulary is good.
+    - How it can be improved: The speaker could use more technical terms related to online education.
+    - What could the speaker have used instead: Instead of saying "many apps were launched for online education," the speaker could have said "a plethora of online education platforms were developed."
+
+---
+
+**Strengths**
+    - The speaker is well-organized and easy to follow.
+    - The speaker provides clear examples to illustrate their points.
+
+---
+
+**Weaknessess**
+    - The speaker could have provided more in-depth analysis of the pros and cons of online education.
+    - The speaker could have provided more specific examples of how online education can be used to improve teaching and learning.
+
+---
+
+**Summary**
+The speaker provides a brief overview of the pros and cons of online education. The speaker highlights the benefits of online education, such as the ability to learn at your own pace and the convenience of being able to access courses from anywhere. The speaker also discusses the challenges of online education, such as the lack of face-to-face interaction and the potential for technical difficulties. Overall, the speaker provides a well-organized and easy-to-follow overview of the topic.
+
+---
+
+**Grade**
+Content: 7/10
+[2024-08-26 10:28:12,075: WARNING/ForkPoolWorker-1] All threads finished
+[2024-08-26 10:28:12,076: WARNING/ForkPoolWorker-1] {'video_output': {'Facial Expressions (Percentage)': '90%', 'Hand Gesture Rating (out of 10)': 7.717215326497572, 'Body Posture Rating': 'Good', 'Overall Confidence Report': 'Your overall performance is excellent. Keep up the good work!'}, 'audio_output': {'Speech Rate (words per minute)': '123.48', 'Fluency': 'Fluent', 'Pauses': 1.987, 'Pitch and Tone Variations': 'High variations', 'Word Emphasis': 'Lacks emphasis', 'Tone Analysis': 'Positive tone', 'Pace Analysis': 'Moderate pace', 'Clarity Analysis': 'Unable to analyze clarity', 'Volume and Energy Analysis': 'High volume and energy'}, 'gemini_output': '**Grammatical Errors**\n    - There are no grammatical errors.\n\n---\n\n**Relevance**\n    - *Relevance percentage:* 20%\n    - *Non-relevant parts:*\n        - "see the lecture which is being recorded by the teacher again and again if you have some doubt or some query he can watch the lecture over and over again"\n        - "now I will talk about some demerits of the online education the demerits in world"\n\n---\n\n**Repetition**\n    - There is no repetition.\n\n---\n\n**Vocabulary**\n    - The speaker\'s vocabulary is good.\n    - How it can be improved: The speaker could use more technical terms related to online education.\n    - What could the speaker have used instead: Instead of saying "many apps were launched for online education," the speaker could have said "a plethora of online education platforms were developed."\n\n---\n\n**Strengths**\n    - The speaker is well-organized and easy to follow.\n    - The speaker provides clear examples to illustrate their points.\n\n---\n\n**Weaknessess**\n    - The speaker could have provided more in-depth analysis of the pros and cons of online education.\n    - The speaker could have provided more specific examples of how online education can be used to improve teaching and learning.\n\n---\n\n**Summary**\nThe speaker provides a brief overview of the pros and cons of online education. The speaker highlights the benefits of online education, such as the ability to learn at your own pace and the convenience of being able to access courses from anywhere. The speaker also discusses the challenges of online education, such as the lack of face-to-face interaction and the potential for technical difficulties. Overall, the speaker provides a well-organized and easy-to-follow overview of the topic.\n\n---\n\n**Grade**\nContent: 7/10'}
+[2024-08-26 10:28:12,076: WARNING/ForkPoolWorker-1] removing file
+[2024-08-26 10:28:12,078: WARNING/ForkPoolWorker-1] Processing time: 43.56271529197693
+[2024-08-26 10:28:12,086: INFO/ForkPoolWorker-1] Task api.tasks.main[c219fd5c-e561-448c-9db2-17a3579a736d] succeeded in 43.571473444999356s: None
+[2024-08-26 10:28:16,795: WARNING/ForkPoolWorker-3] Gemini report output: **Grammatical Errors**
+    - There are no grammatical errors
+
+---
+
+**Relevance**
+    - *Relevance percentage:* 100%
+    - *Non-relevant parts:*
+        - There are no non-relevant parts
+
+---
+
+**Repetition**
+    - There are no repetitions
+
+---
+
+**Vocabulary**
+    - The vocabulary of the speaker was good.
+    - It could be improved by using more specific and technical terms.
+    - For example, instead of saying "online education," the speaker could have said "distance learning" or "e-learning."
+
+---
+
+**Strengths**
+    - The speaker was well-organized and spoke clearly and concisely.
+    - The speaker used a variety of examples to illustrate their points.
+    - The speaker was engaging and kept the audience's attention.
+
+---
+
+**Weaknessess**
+    - The speaker could have used more visual aids to support their points.
+    - The speaker could have provided more specific examples of the benefits and drawbacks of online education.
+    - The speaker could have spoken more slowly and clearly.
+
+---
+
+**Summary:**
+    The speaker gave a good overview of the benefits and drawbacks of online education. The speaker was well-organized and spoke clearly and concisely. The speaker could have improved their presentation by using more visual aids and providing more specific examples.
+
+---
+
+**Grade:**
+    8/10
+[2024-08-26 10:28:16,795: WARNING/ForkPoolWorker-3] All threads finished
+[2024-08-26 10:28:16,796: WARNING/ForkPoolWorker-3] {'video_output': {'Facial Expressions (Percentage)': '90%', 'Hand Gesture Rating (out of 10)': 7.717215326497572, 'Body Posture Rating': 'Good', 'Overall Confidence Report': 'Your overall performance is excellent. Keep up the good work!'}, 'audio_output': {'Speech Rate (words per minute)': '123.48', 'Fluency': 'Fluent', 'Pauses': 1.987, 'Pitch and Tone Variations': 'High variations', 'Word Emphasis': 'Lacks emphasis', 'Tone Analysis': 'Positive tone', 'Pace Analysis': 'Moderate pace', 'Clarity Analysis': 'Unable to analyze clarity', 'Volume and Energy Analysis': 'High volume and energy'}, 'gemini_output': '**Grammatical Errors**\n    - There are no grammatical errors\n\n---\n\n**Relevance**\n    - *Relevance percentage:* 100%\n    - *Non-relevant parts:*\n        - There are no non-relevant parts\n\n---\n\n**Repetition**\n    - There are no repetitions\n\n---\n\n**Vocabulary**\n    - The vocabulary of the speaker was good.\n    - It could be improved by using more specific and technical terms.\n    - For example, instead of saying "online education," the speaker could have said "distance learning" or "e-learning."\n\n---\n\n**Strengths**\n    - The speaker was well-organized and spoke clearly and concisely.\n    - The speaker used a variety of examples to illustrate their points.\n    - The speaker was engaging and kept the audience\'s attention.\n\n---\n\n**Weaknessess**\n    - The speaker could have used more visual aids to support their points.\n    - The speaker could have provided more specific examples of the benefits and drawbacks of online education.\n    - The speaker could have spoken more slowly and clearly.\n\n---\n\n**Summary:**\n    The speaker gave a good overview of the benefits and drawbacks of online education. The speaker was well-organized and spoke clearly and concisely. The speaker could have improved their presentation by using more visual aids and providing more specific examples.\n\n---\n\n**Grade:**\n    8/10'}
+[2024-08-26 10:28:16,796: WARNING/ForkPoolWorker-3] removing file
+[2024-08-26 10:28:16,799: WARNING/ForkPoolWorker-3] Processing time: 35.04422640800476
+[2024-08-26 10:28:16,822: INFO/ForkPoolWorker-3] Task api.tasks.main[d7342a55-3e2b-42b8-a267-f8039d52285c] succeeded in 35.06756728599976s: None
+[2024-08-26 10:44:27,756: INFO/MainProcess] Task api.tasks.main[74d9fa9a-78ff-4b0b-91ea-966f6a14d7c8] received
+[2024-08-26 10:44:27,767: ERROR/ForkPoolWorker-1] Task api.tasks.main[74d9fa9a-78ff-4b0b-91ea-966f6a14d7c8] raised unexpected: TypeError("main() missing 1 required positional argument: 'videoID'")
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/celery/app/trace.py", line 453, in trace_task
+    R = retval = fun(*args, **kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/celery/app/trace.py", line 736, in __protected_call__
+    return self.run(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: main() missing 1 required positional argument: 'videoID'
+[2024-08-26 10:46:23,556: INFO/MainProcess] Connected to amqp://guest:**@rabbitmq:5672//
+[2024-08-26 10:46:23,560: INFO/MainProcess] mingle: searching for neighbors
+[2024-08-26 10:46:24,577: INFO/MainProcess] mingle: all alone
+[2024-08-26 10:46:24,587: INFO/MainProcess] celery@0ea7cec98414 ready.
+[2024-08-26 10:46:36,166: INFO/MainProcess] Task api.tasks.main[61efe639-03e6-4e79-a619-0d234400e1c9] received
+[2024-08-26 10:46:36,167: WARNING/ForkPoolWorker-1] Working on lefsxfucpcudvd4eph78 - lefsxfucpcudvd4eph78
+[2024-08-26 10:46:36,167: WARNING/ForkPoolWorker-1] Started processing
+[2024-08-26 10:46:36,167: ERROR/ForkPoolWorker-1] save dir is: data/video_output/lefsxfucpcudvd4eph78
+[2024-08-26 10:46:36,168: WARNING/ForkPoolWorker-1] Video path: data/video_input/lefsxfucpcudvd4eph78.mp4
+[2024-08-26 10:46:36,168: WARNING/ForkPoolWorker-1] Audio output path: data/video_output/lefsxfucpcudvd4eph78/lefsxfucpcudvd4eph78.wav
+[2024-08-26 10:46:36,241: WARNING/ForkPoolWorker-1] MoviePy - Writing audio in data/video_output/lefsxfucpcudvd4eph78/lefsxfucpcudvd4eph78.wav
+[2024-08-26 10:46:36,243: WARNING/ForkPoolWorker-1] chunk:   0%|          | 0/1361 [00:00<?, ?it/s, now=None]
+[2024-08-26 10:46:36,343: WARNING/ForkPoolWorker-1] chunk:  55%|#####4    | 744/1361 [00:00<00:00, 7435.91it/s, now=None]
+[2024-08-26 10:46:36,425: WARNING/ForkPoolWorker-1]                                                                      
+[2024-08-26 10:46:36,425: WARNING/ForkPoolWorker-1] 
+[2024-08-26 10:46:36,426: WARNING/ForkPoolWorker-1] MoviePy - Done.
+[2024-08-26 10:46:36,429: WARNING/ForkPoolWorker-1] Audio file generated: data/video_output/lefsxfucpcudvd4eph78/lefsxfucpcudvd4eph78.wav
+[2024-08-26 10:46:36,429: WARNING/ForkPoolWorker-1] Starting Video analysis
+[2024-08-26 10:46:58,073: WARNING/ForkPoolWorker-1] Finishing video analysis
+[2024-08-26 10:46:58,073: WARNING/ForkPoolWorker-1] Video analysis output path: {'Facial Expressions (Percentage)': '90%', 'Hand Gesture Rating (out of 10)': 7.717215326497572, 'Body Posture Rating': 'Good', 'Overall Confidence Report': 'Your overall performance is excellent. Keep up the good work!'}
+[2024-08-26 10:47:07,811: WARNING/ForkPoolWorker-1] Speech to text result: gentleman today I will speak on the topic online education so as we all know that online education was introduced very early than the covid-19 but it was primarily given importance mostly in the covid-19 so as we can see that many apps were launched for online education many websites were launched and Group of Institutions schools all of them used these apps like Microsoft teams app Zoom app and many words two sides and online education also have merits and demerits see the lecture which is being recorded by the teacher again and again if you have some doubt or some query he can watch the lecture over and over again now I will talk about some demerits of the online education the demerits in world
+[2024-08-26 10:47:07,812: WARNING/ForkPoolWorker-1] Starting audio analysis
+[2024-08-26 10:47:09,150: WARNING/ForkPoolWorker-1] Error analyzing clarity: ``audio_data`` must be audio data
+[2024-08-26 10:47:09,310: WARNING/ForkPoolWorker-1] Finishing video analysis
+[2024-08-26 10:47:09,310: WARNING/ForkPoolWorker-1] Audio analysis output path: {'Speech Rate (words per minute)': '123.48', 'Fluency': 'Fluent', 'Pauses': 1.987, 'Pitch and Tone Variations': 'High variations', 'Word Emphasis': 'Lacks emphasis', 'Tone Analysis': 'Positive tone', 'Pace Analysis': 'Moderate pace', 'Clarity Analysis': 'Unable to analyze clarity', 'Volume and Energy Analysis': 'High volume and energy'}
+[2024-08-26 10:47:16,817: WARNING/ForkPoolWorker-1] Gemini report output: **Grammatical Errors**
+    - * introduced very early than the covid-19 * -> *introduced very early before the covid-19*
+    - *so as we can see that many apps were launched for online education * -> *So we can see that many apps were launched for online education*
+    - *two sides and online education also have merits and demerits * -> *two sides. Online education also has merits and demerits.*
+
+---
+
+**Relevance**
+    - *Relevance percentage:* 100%
+
+---
+
+**Repetition**
+    - There are no repetitions.
+
+---
+
+**Vocabulary**
+    - The vocabulary of the speaker was basic.
+    - It could be improved by using more specific and varied vocabulary.
+    - For example, instead of saying "many apps were launched", the speaker could have said "a plethora of applications were released".
+
+---
+
+**Strengths**
+    - The speaker was engaging and spoke clearly.
+    - The speaker provided a good overview of the topic.
+
+**Weaknessess**
+    - The speaker could have used more specific and varied vocabulary.
+    - The speaker could have provided more examples to support their points.
+
+---
+
+**Summary**
+The speaker gave a talk on online education. They discussed the advantages and disadvantages of online education. They provided a good overview of the topic, but could have used more specific and varied vocabulary and provided more examples to support their points.
+
+---
+
+**Grade:**
+7/10
+[2024-08-26 10:47:16,818: WARNING/ForkPoolWorker-1] All threads finished
+[2024-08-26 10:47:16,818: WARNING/ForkPoolWorker-1] {'video_output': {'Facial Expressions (Percentage)': '90%', 'Hand Gesture Rating (out of 10)': 7.717215326497572, 'Body Posture Rating': 'Good', 'Overall Confidence Report': 'Your overall performance is excellent. Keep up the good work!'}, 'audio_output': {'Speech Rate (words per minute)': '123.48', 'Fluency': 'Fluent', 'Pauses': 1.987, 'Pitch and Tone Variations': 'High variations', 'Word Emphasis': 'Lacks emphasis', 'Tone Analysis': 'Positive tone', 'Pace Analysis': 'Moderate pace', 'Clarity Analysis': 'Unable to analyze clarity', 'Volume and Energy Analysis': 'High volume and energy'}, 'gemini_output': '**Grammatical Errors**\n    - * introduced very early than the covid-19 * -> *introduced very early before the covid-19*\n    - *so as we can see that many apps were launched for online education * -> *So we can see that many apps were launched for online education*\n    - *two sides and online education also have merits and demerits * -> *two sides. Online education also has merits and demerits.*\n\n---\n\n**Relevance**\n    - *Relevance percentage:* 100%\n\n---\n\n**Repetition**\n    - There are no repetitions.\n\n---\n\n**Vocabulary**\n    - The vocabulary of the speaker was basic.\n    - It could be improved by using more specific and varied vocabulary.\n    - For example, instead of saying "many apps were launched", the speaker could have said "a plethora of applications were released".\n\n---\n\n**Strengths**\n    - The speaker was engaging and spoke clearly.\n    - The speaker provided a good overview of the topic.\n\n**Weaknessess**\n    - The speaker could have used more specific and varied vocabulary.\n    - The speaker could have provided more examples to support their points.\n\n---\n\n**Summary**\nThe speaker gave a talk on online education. They discussed the advantages and disadvantages of online education. They provided a good overview of the topic, but could have used more specific and varied vocabulary and provided more examples to support their points.\n\n---\n\n**Grade:**\n7/10'}
+[2024-08-26 10:47:16,818: WARNING/ForkPoolWorker-1] removing file
+[2024-08-26 10:47:16,820: WARNING/ForkPoolWorker-1] Processing time: 40.65330100059509
+[2024-08-26 10:47:16,832: INFO/ForkPoolWorker-1] Task api.tasks.main[61efe639-03e6-4e79-a619-0d234400e1c9] succeeded in 40.665070146998914s: None

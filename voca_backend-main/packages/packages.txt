@@ -1,0 +1,15 @@
+software-properties-common
+rabbitmq-server
+curl
+net-tools
+python3.11
+python3.11-dev
+python3.11-distutils
+python3-pip
+build-essential
+libgl1-mesa-glx
+libglib2.0-0
+libsm6
+libxrender1
+libxext6
+postgresql

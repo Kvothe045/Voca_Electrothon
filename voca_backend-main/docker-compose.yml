@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: dockerfile
+    command: python3 manage.py runserver 0.0.0.0:8000
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    ports:
+      - "1999:8000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/voca_in
+    volumes:
+      - .:/app
+
+  celery:
+    build:
+      context: .
+      dockerfile: dockerfile
+    command: celery -A voca_backend worker --loglevel=info --logfile=logs/celery.log
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/voca_in
+    volumes:
+      - .:/app
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=voca_in
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+volumes:
+  postgres_data:
+  nltk_data:

@@ -1,0 +1,10 @@
+2025-02-15 11:27:34,719 - ERROR - Error storing nonce: a bytes-like object is required, not 'dict'
+2025-02-15 11:28:18,102 - ERROR - Error storing nonce: a bytes-like object is required, not 'str'
+2025-02-15 11:30:08,981 - ERROR - Error storing nonce: string argument without an encoding
+2025-02-15 11:41:12,281 - ERROR - Error storing nonce: a bytes-like object is required, not 'str'
+2025-02-15 11:42:30,568 - ERROR - Error storing nonce: a bytes-like object is required, not 'str'
+2025-03-08 06:42:01,653 - ERROR - Error parsing request data: 'NoneType' object is not subscriptable
+2025-03-08 06:42:01,862 - ERROR - Error parsing request data: Expecting value: line 1 column 11 (char 10)
+2025-03-08 06:42:01,864 - ERROR - Error parsing request data: 'NoneType' object is not subscriptable
+2025-03-08 06:42:01,864 - ERROR - Missing required field
+2025-03-08 06:42:01,865 - ERROR - Error parsing request data: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte

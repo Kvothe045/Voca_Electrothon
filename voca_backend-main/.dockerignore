@@ -1,0 +1,10 @@
+.git
+.gitignore
+.dockerignore
+.env
+
+# Development environments
+.vscode
+.idea
+*.swp
+*.swo
