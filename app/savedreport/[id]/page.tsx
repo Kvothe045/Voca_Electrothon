@@ -2,10 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import HeroSection from "../../components/hero-section";
+import Footer from "../../components/footer";
 
 interface ReportRecord {
   reportId: string;
   activityName: string;
+  grade: string;
   pdfLink: string;
   txLink: string;
   timestamp: string;
@@ -30,36 +33,58 @@ const SavedReportPage: React.FC = () => {
   if (!report) {
     return (
       <div className="min-h-screen bg-gray-900 text-white p-8">
-        <p className="text-xl">Report not found.</p>
+        <HeroSection />
+        <main className="pt-32">
+          <p className="text-xl text-center">Report not found.</p>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
-      <button onClick={() => router.back()} className="mb-4 text-indigo-400 hover:underline">
-        &larr; Back
-      </button>
-      <h1 className="text-4xl font-bold mb-4">Report Details</h1>
-      <div className="p-6 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg">
-        <h2 className="text-2xl font-semibold mb-2">Report ID: {report.reportId}</h2>
-        <p className="mb-2">Activity: {report.activityName}</p>
-        <p className="text-sm mb-2">
-          PDF Link:{" "}
-          <a href={report.pdfLink} target="_blank" rel="noopener noreferrer" className="underline">
-            {report.pdfLink}
-          </a>
-        </p>
-        <p className="text-sm mb-2">
-          Transaction Link:{" "}
-          <a href={report.txLink} target="_blank" rel="noopener noreferrer" className="underline">
-            {report.txLink}
-          </a>
-        </p>
-        <p className="text-xs mt-2">
-          Created on: {new Date(report.timestamp).toLocaleString()}
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+      <HeroSection />
+      <main className="container mx-auto px-6 pt-32 pb-12">
+        <div className="max-w-xl mx-auto bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-2xl p-8">
+          <div className="flex flex-col items-center">
+            <h1 className="text-3xl font-bold mb-4">Report Details</h1>
+            <p className="text-lg mb-2">
+              <span className="font-bold">Report ID:</span> {report.reportId}
+            </p>
+            <p className="text-lg mb-2">
+              <span className="font-bold">Activity:</span> {report.activityName}
+            </p>
+            <p className="text-lg mb-2">
+              <span className="font-bold">Grade:</span> {report.grade}
+            </p>
+            <p className="text-sm mb-4">
+              <span className="font-bold">Created on:</span> {new Date(report.timestamp).toLocaleString()}
+            </p>
+            <div className="w-full border-t border-gray-300 pt-4 text-center">
+              <p className="text-sm mb-2">
+                <span className="font-bold">PDF Link:</span>{" "}
+                <a href={report.pdfLink} target="_blank" rel="noopener noreferrer" className="underline text-indigo-300">
+                  {report.pdfLink}
+                </a>
+              </p>
+              <p className="text-sm">
+                <span className="font-bold">Transaction Link:</span>{" "}
+                <a href={report.txLink} target="_blank" rel="noopener noreferrer" className="underline text-indigo-300">
+                  {report.txLink}
+                </a>
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => router.back()}
+            className="mt-6 block mx-auto px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl text-white shadow-lg transition transform hover:scale-105"
+          >
+            &larr; Back
+          </button>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 };
