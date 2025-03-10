@@ -27,7 +27,7 @@ return (
 <MessagesSquare className="h-5 w-5" />
 <span className="font-medium">Debate</span>
 </Link>
-<Link href="/report-page" className="flex items-center gap-2 hover:text-purple-300 transition">
+<Link href="/myReport" className="flex items-center gap-2 hover:text-purple-300 transition">
 <BarChart3 className="h-5 w-5" />
 <span className="font-medium">Reports</span>
 </Link>

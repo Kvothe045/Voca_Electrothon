@@ -2,16 +2,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import { uploadPdfToIPFS } from "../lib/ipts"; // helper for uploading PDF
-import { createAndUploadMetadata, mintDocumentNFT } from "../lib/ipfs"; // IPFS minting functions
+import { generatePDFFromReport, uploadAndMintNFT } from "./pdfGenerator";
+import { uploadPdfToIPFS } from "../lib/ipts";
+import { createAndUploadMetadata } from "../lib/ipfs";
+import { mintDocument } from "../lib/minting";
+import ReportContent from "./ReportContent";
+import HeroSection from "../components/hero-section";
+import Footer from "../components/footer";
+
+interface ShareableLinks {
+  pdfLink: string;
+  txLink: string;
+}
 
 const ReportPage = () => {
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [generatingPdf, setGeneratingPdf] = useState<boolean>(false);
-  const [uploadingPdf, setUploadingPdf] = useState<boolean>(false); // state for IPFS upload & mint chain
+  const [uploadingPdf, setUploadingPdf] = useState<boolean>(false);
+  const [shareableLinks, setShareableLinks] = useState<ShareableLinks | null>(null);
   const reportContainerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -26,48 +35,11 @@ const ReportPage = () => {
     setLoading(false);
   }, [router]);
 
-  // Helper to generate PDF Blob and filename
-  const generatePdfBlob = async (): Promise<{ pdfBlob: Blob; filename: string }> => {
-    if (!report || !reportContainerRef.current) {
-      throw new Error("No report data or container found");
-    }
-    toast.info("Capturing current report state...");
-    const canvas = await html2canvas(reportContainerRef.current, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-    });
-    const imgWidth = 210; // A4 width in mm
-    const pageHeight = 297; // A4 height in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-    });
-    let heightLeft = imgHeight;
-    let position = 0;
-    pdf.addImage(canvas.toDataURL("image/jpeg", 1.0), "JPEG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(canvas.toDataURL("image/jpeg", 1.0), "JPEG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const filename = `VOCA_Report_${timestamp}.pdf`;
-    const pdfBlob = pdf.output("blob");
-    return { pdfBlob, filename };
-  };
-
-  // Function: Generate PDF, download it, and send to server (existing functionality)
   const generatePDF = async () => {
     setGeneratingPdf(true);
     try {
-      const { pdfBlob, filename } = await generatePdfBlob();
-
-      // Download PDF
+      const { pdfBlob, filename } = await generatePDFFromReport(report);
+      // Download locally
       const pdfUrl = URL.createObjectURL(pdfBlob);
       const link = document.createElement("a");
       link.href = pdfUrl;
@@ -75,7 +47,7 @@ const ReportPage = () => {
       link.click();
       URL.revokeObjectURL(pdfUrl);
 
-      // Send PDF to server
+      // Send to server
       const formData = new FormData();
       formData.append("pdf", pdfBlob, filename);
       formData.append("reportData", JSON.stringify(report));
@@ -99,30 +71,35 @@ const ReportPage = () => {
     }
   };
 
-  // New function: Upload PDF to IPFS, create metadata, and mint NFT
-  const uploadAndMintNFT = async () => {
+  const handleUploadAndMintNFT = async () => {
     setUploadingPdf(true);
     try {
-      // Generate PDF Blob and filename
-      const { pdfBlob, filename } = await generatePdfBlob();
+      const { pdfBlob, filename } = await generatePDFFromReport(report);
+      const links = await uploadAndMintNFT(
+        pdfBlob,
+        filename,
+        uploadPdfToIPFS,
+        createAndUploadMetadata,
+        mintDocument
+      );
+      toast.success("NFT minted successfully!");
+      setShareableLinks(links);
 
-      // Upload PDF to IPFS and get the PDF CID
-      const pdfCid = await uploadPdfToIPFS(pdfBlob, filename);
-      toast.success("PDF successfully uploaded to IPFS");
-      console.log("Returned IPFS CID:", pdfCid);
+      // Create a new report record
+      const newReport = {
+        reportId: `${Date.now()}`, // unique ID from timestamp
+        activityName: "Sample Activity", // For now, a sample activity name
+        pdfLink: links.pdfLink,
+        txLink: links.txLink,
+        timestamp: new Date().toISOString(),
+      };
 
-      // Create metadata on IPFS using the PDF CID
-      const documentName = filename; // you can adjust the naming scheme if desired
-      const description = `PDF document uploaded at ${new Date().toLocaleString()}`;
-      console.log("Creating metadata with document name:", documentName);
-      const metadataCid = await createAndUploadMetadata(pdfCid, documentName, description);
-      console.log("Metadata CID:", metadataCid);
-
-      // Mint NFT using the metadata CID (this should trigger MetaMask for approval)
-      console.log("Minting NFT...");
-      const mintResult = await mintDocumentNFT(metadataCid);
-      console.log("NFT minted successfully:", mintResult);
-      toast.success("NFT minted successfully! Check console for details.");
+      // Retrieve current saved reports from local storage
+      const saved = localStorage.getItem("savedReports");
+      let reports = saved ? JSON.parse(saved) : [];
+      reports.push(newReport);
+      localStorage.setItem("savedReports", JSON.stringify(reports));
+      console.log("Report card added to myReport:", newReport);
     } catch (error) {
       console.error("Error in upload and mint process:", error);
       toast.error("Failed to upload and mint NFT");
@@ -133,7 +110,7 @@ const ReportPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0e] text-white">
         <p className="text-xl">Loading report...</p>
       </div>
     );
@@ -141,9 +118,12 @@ const ReportPage = () => {
 
   if (!report) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0e] text-white">
         <p className="text-xl mb-4">No report data available.</p>
-        <button onClick={() => router.push("/")} className="px-4 py-2 bg-blue-600 text-white rounded">
+        <button 
+          onClick={() => router.push("/")} 
+          className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl shadow-lg transition transform hover:scale-105"
+        >
           Go Home
         </button>
       </div>
@@ -151,88 +131,93 @@ const ReportPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div 
-        className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8" 
-        id="report-container"
-        ref={reportContainerRef}
-      >
-        <h1 className="text-4xl font-bold text-center mb-8">VOCA Report</h1>
-
-        {/* Audio Analysis Section */}
-        <section className="mb-10">
-          <h2 className="text-2xl font-semibold mb-4">Audio Analysis</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {report.audio_output &&
-              Object.entries(report.audio_output).map(([key, value]) => (
-                <div key={key} className="p-4 border rounded hover:shadow-md transition">
-                  <p className="text-gray-600 font-medium">{key}</p>
-                  <p className="text-gray-900">{String(value)}</p>
-                </div>
-              ))}
-          </div>
-        </section>
-
-        {/* Gemini Analysis Section */}
-        <section className="mb-10">
-          <h2 className="text-2xl font-semibold mb-4">Gemini Analysis</h2>
-          <div className="p-4 border rounded hover:shadow-md transition whitespace-pre-wrap text-gray-800">
-            {report.gemini_output}
-          </div>
-        </section>
-
-        {/* Video Analysis Section */}
-        <section>
-          <h2 className="text-2xl font-semibold mb-4">Video Analysis</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {report.video_output &&
-              Object.entries(report.video_output).map(([key, value]) => (
-                <div key={key} className="p-4 border rounded hover:shadow-md transition">
-                  <p className="text-gray-600 font-medium">{key}</p>
-                  <p className="text-gray-900">{String(value)}</p>
-                </div>
-              ))}
-          </div>
-        </section>
-      </div>
-
-      {/* Buttons Container */}
-      <div className="max-w-4xl mx-auto mt-6 flex justify-center space-x-4">
-        <button 
-          onClick={generatePDF}
-          disabled={generatingPdf}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 flex items-center justify-center"
+    <div className="min-h-screen bg-[#0a0a0e] text-white">
+      <HeroSection />
+      {/* Extra top margin so nothing gets hidden when zooming */}
+      <main className="mt-64 container mx-auto px-6 pb-12 space-y-12">
+        <div
+          className="max-w-4xl mx-auto bg-gradient-to-br from-gray-800 to-gray-900 bg-opacity-90 shadow-2xl rounded-xl p-8 transition transform origin-bottom hover:scale-105"
+          id="report-container"
+          ref={reportContainerRef}
         >
-          {generatingPdf ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Capturing Report & Downloading PDF...
-            </>
-          ) : (
-            "Download & Share PDF Report"
-          )}
-        </button>
-        <button
-          onClick={uploadAndMintNFT}
-          disabled={uploadingPdf}
-          className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400 flex items-center justify-center"
-        >
-          {uploadingPdf ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Upload PDF & Mint NFT...
-            </>
-          ) : (
-            "Upload PDF & Mint NFT"
-          )}
-        </button>
-      </div>
+          <ReportContent report={report} />
+        </div>
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-6">
+          <button
+            onClick={generatePDF}
+            disabled={generatingPdf}
+            className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl shadow-lg transition transform hover:scale-105 disabled:opacity-70 flex items-center justify-center"
+          >
+            {generatingPdf ? "Processing..." : "Download & Share PDF Report"}
+          </button>
+          <button
+            onClick={handleUploadAndMintNFT}
+            disabled={uploadingPdf}
+            className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl shadow-lg transition transform hover:scale-105 disabled:opacity-70 flex items-center justify-center"
+          >
+            {uploadingPdf ? "Processing..." : "Upload PDF & Mint NFT"}
+          </button>
+        </div>
+        {shareableLinks && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white text-gray-900 p-6 rounded-xl max-w-md mx-auto shadow-2xl">
+              <h2 className="text-2xl font-bold mb-4">NFT Minted Successfully!</h2>
+              <p className="mb-2">Share these links to verify your tamper-proof report:</p>
+              <div className="mb-4 space-y-2">
+                <div>
+                  <strong>PDF Link:</strong>{" "}
+                  <a
+                    href={shareableLinks.pdfLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:underline break-all"
+                  >
+                    {shareableLinks.pdfLink}
+                  </a>
+                </div>
+                <div>
+                  <strong>Transaction Link:</strong>{" "}
+                  <a
+                    href={shareableLinks.txLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:underline break-all"
+                  >
+                    {shareableLinks.txLink}
+                  </a>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(shareableLinks.pdfLink);
+                    toast.success("PDF Link copied to clipboard");
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl shadow-lg transition transform hover:scale-105 text-white"
+                >
+                  Copy PDF Link
+                </button>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(shareableLinks.txLink);
+                    toast.success("Transaction Link copied to clipboard");
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl shadow-lg transition transform hover:scale-105 text-white"
+                >
+                  Copy Transaction Link
+                </button>
+                <button
+                  onClick={() => setShareableLinks(null)}
+                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-xl shadow-lg transition transform hover:scale-105 text-gray-900"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+      <Footer />
     </div>
   );
 };

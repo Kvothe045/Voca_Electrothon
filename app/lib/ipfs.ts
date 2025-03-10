@@ -76,7 +76,7 @@ export async function mintDocumentNFT(metadataCid: string) {
   try {
     console.log("Minting NFT with metadata CID:", metadataCid);
     // Connect to the provider (ensure window.ethereum exists)
-    const provider = new ethers.BrowserProvider(window.ethereum);
+    const provider = new ethers.BrowserProvider((window as any).ethereum);
     await provider.send("eth_requestAccounts", []);
     const signer = await provider.getSigner();
     
