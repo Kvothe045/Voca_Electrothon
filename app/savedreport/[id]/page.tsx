@@ -46,9 +46,11 @@ const SavedReportPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <HeroSection />
       <main className="container mx-auto px-6 pt-32 pb-12">
-        <div className="max-w-xl mx-auto bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-2xl p-8">
+        <div className="max-w-xl mx-auto bg-gray-800 bg-opacity-70 backdrop-blur-lg rounded-3xl shadow-2xl p-8 transition transform hover:scale-105 animate-fadeIn">
           <div className="flex flex-col items-center">
-            <h1 className="text-3xl font-bold mb-4">Report Details</h1>
+            <h1 className="text-3xl font-bold mb-4 flex items-center">
+              <span role="img" aria-label="report" className="mr-2">📄</span> Report Details
+            </h1>
             <p className="text-lg mb-2">
               <span className="font-bold">Report ID:</span> {report.reportId}
             </p>
@@ -64,13 +66,23 @@ const SavedReportPage: React.FC = () => {
             <div className="w-full border-t border-gray-300 pt-4 text-center">
               <p className="text-sm mb-2">
                 <span className="font-bold">PDF Link:</span>{" "}
-                <a href={report.pdfLink} target="_blank" rel="noopener noreferrer" className="underline text-indigo-300">
+                <a
+                  href={report.pdfLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline text-indigo-300 hover:text-indigo-400 transition-colors"
+                >
                   {report.pdfLink}
                 </a>
               </p>
               <p className="text-sm">
                 <span className="font-bold">Transaction Link:</span>{" "}
-                <a href={report.txLink} target="_blank" rel="noopener noreferrer" className="underline text-indigo-300">
+                <a
+                  href={report.txLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline text-indigo-300 hover:text-indigo-400 transition-colors"
+                >
                   {report.txLink}
                 </a>
               </p>

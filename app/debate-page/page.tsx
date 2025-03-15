@@ -1,184 +1,362 @@
 "use client";
-// frontend/next-app/pages/debate.tsx
-import { useState, useEffect, useRef } from "react";
 
-const DebatePage = () => {
-  const [status, setStatus] = useState("Ready to start debate");
-  const [timerText, setTimerText] = useState("Time remaining: 5:00");
-  const [debateActive, setDebateActive] = useState(false);
-  const [recording, setRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
-  const [topic, setTopic] = useState("");
-  const timerIntervalRef = useRef<number | null>(null);
-  const debateEndTimeRef = useRef<Date | null>(null);
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import HeroSection from "../components/hero-section";
+import Footer from "../components/footer";
+import { debateService } from "../lib/debateService";
+// import { VoskRecognizer } from "vosk-browser";
+import { recognizeSpeechVosk } from "../lib/recognizeSpeechVosk";
 
-  // Start the debate by calling the backend endpoint.
-  const startDebate = async () => {
-    const res = await fetch("http://localhost:8000/start-debate", {
-      method: "POST",
-    });
-    const data = await res.json();
-    if (data.topic) {
-      setTopic(data.topic);
-      setStatus("Debate started: " + data.topic);
-      setDebateActive(true);
-      debateEndTimeRef.current = new Date(data.debateEndTime);
-      timerIntervalRef.current = window.setInterval(updateTimer, 500);
-    } else {
-      setStatus("Error starting debate");
+// Ensure you have your Vosk model available at this URL.
+const MODEL_URL = "/vosk-model-small-en-us-0.15";
+
+export default function DebatePage() {
+  const [topic, setTopic] = useState<string>("");
+  const [sessionId, setSessionId] = useState<string>("");
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [isDebating, setIsDebating] = useState<boolean>(false);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [transcript, setTranscript] = useState<Array<{ role: string; text: string }>>([]);
+  const [aiResponse, setAiResponse] = useState<string>("");
+  const [timer, setTimer] = useState<number>(180);
+  const [isEnded, setIsEnded] = useState<boolean>(false);
+
+  const router = useRouter();
+  const webSocketRef = useRef<WebSocket | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]); // Added missing reference
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Gemini configuration will be embedded in the system instruction (no extra 'language' field)
+  const systemInstruction = `You are participating in a formal debate on the topic: "${topic}".
+Your role is to be a respectful but challenging debate opponent.
+Present strong arguments and counter the user's points with thoughtful responses.
+Keep responses concise (15-30 seconds when spoken).
+Use English for all responses.`;
+
+  // Initialize debate session
+  const initializeDebate = async () => {
+    const newSessionId = Math.random().toString(36).substring(2, 15);
+    setSessionId(newSessionId);
+    const randomTopic = await debateService.getRandomTopic();
+    setTopic(randomTopic);
+
+    try {
+      const socketUrl = `ws://localhost:8000/debate/${newSessionId}`;
+      const socket = new WebSocket(socketUrl);
+      webSocketRef.current = socket;
+
+      socket.onopen = () => {
+        setIsConnected(true);
+        setIsDebating(true);
+        startTimer();
+        console.log("WebSocket connected");
+      };
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        handleWebSocketMessage(data);
+      };
+
+      socket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      socket.onclose = () => {
+        setIsConnected(false);
+        console.log("WebSocket disconnected");
+      };
+    } catch (error) {
+      console.error("Failed to connect to WebSocket:", error);
     }
   };
 
-  const updateTimer = () => {
-    if (debateEndTimeRef.current) {
-      const now = new Date();
-      const diff = debateEndTimeRef.current.getTime() - now.getTime();
-      if (diff > 0) {
-        const minutes = Math.floor(diff / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-        setTimerText(`Time remaining: ${minutes}:${seconds.toString().padStart(2, "0")}`);
-      } else {
-        setTimerText("Time's up!");
-        endDebate();
-      }
+  // Handle WebSocket messages from backend
+  const handleWebSocketMessage = (data: any) => {
+    switch (data.event) {
+      case "debate_started":
+        setTopic(data.topic);
+        break;
+      case "ai_text":
+        setAiResponse((prev) => prev + data.text);
+        setTranscript((prev) => {
+          const last = prev[prev.length - 1];
+          if (last && last.role === "AI") {
+            return [...prev.slice(0, -1), { role: "AI", text: last.text + data.text }];
+          }
+          return [...prev, { role: "AI", text: data.text }];
+        });
+        break;
+      case "ai_audio":
+        // Optionally, implement audio playback here.
+        break;
+      case "debate_ended":
+        setIsEnded(true);
+        setIsDebating(false);
+        clearInterval(timerIntervalRef.current!);
+        break;
+      case "error":
+        console.error("Error from server:", data.message);
+        break;
+      default:
+        console.log("Unknown event:", data);
     }
   };
 
-  // Start recording using MediaRecorder.
+  // Start recording user audio with MediaRecorder using MIME type "audio/webm"
   const startRecording = async () => {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setStatus("Audio recording not supported in this browser");
-      return;
-    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      setMediaRecorder(recorder);
-      const chunks: Blob[] = [];
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
+      const options = { mimeType: "audio/webm" };
+      mediaRecorderRef.current = new MediaRecorder(stream, options);
+      audioChunksRef.current = [];
+
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
       };
-      recorder.onstop = () => {
-        setAudioChunks(chunks);
-        const blob = new Blob(chunks, { type: "audio/wav" });
-        processAudio(blob);
+
+      mediaRecorderRef.current.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: options.mimeType });
+        sendAudio(blob);
       };
-      recorder.start();
-      setRecording(true);
-      setStatus("Recording...");
-    } catch (e) {
-      setStatus("Error starting recording");
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+      console.log("Recording started");
+    } catch (error) {
+      console.error("Error starting recording:", error);
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setRecording(false);
-      setStatus("Processing audio...");
-    }
-  };
-
-  // Send the recorded audio file to the backend.
-  const processAudio = async (blob: Blob) => {
-    const formData = new FormData();
-    formData.append("file", blob, "recording.wav");
-    const res = await fetch("http://localhost:8000/process-audio", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    if (data.error) {
-      setStatus(data.error);
-    } else {
-      setStatus("AI Response: " + data.aiResponse);
-      // If TTS audio is returned (Base64-encoded), play it.
-      if (data.ttsAudio) {
-        const audio = new Audio("data:audio/wav;base64," + data.ttsAudio);
-        audio.play();
+  const recognizeSpeech = (): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        // Fallback: prompt user to enter text manually
+        const typed = window.prompt(
+          "Speech Recognition API is not supported in your browser. Please type your message:"
+        );
+        if (typed !== null && typed.trim() !== "") {
+          resolve(typed);
+        } else {
+          reject(new Error("No input provided."));
+        }
+        return;
       }
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.interimResults = false;
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        resolve(transcript);
+      };
+      recognition.onerror = (err: any) => reject(err);
+      recognition.start();
+    });
+  };
+  
+
+
+// Inside your DebatePage component:
+const stopRecording = async () => {
+  if (mediaRecorderRef.current && isRecording) {
+    mediaRecorderRef.current.stop();
+    setIsRecording(false);
+    console.log("Recording stopped");
+
+    // Create blob with MIME type "audio/webm"
+    const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+    
+    try {
+      const recognizedText = await recognizeSpeechVosk(blob);
+      console.log("Recognized text:", recognizedText);
+      // Send the recognized text to backend via WebSocket.
+      if (webSocketRef.current) {
+        webSocketRef.current.send(
+          JSON.stringify({
+            event: "user_audio",
+            user_text: recognizedText,
+          })
+        );
+      }
+    } catch (error) {
+      console.error("Speech recognition failed:", error);
+    }
+  }
+};
+
+
+  
+  // Convert audio blob to base64 and send to backend
+  const sendAudio = (blob: Blob) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      const base64Audio = result.split(",")[1];
+      if (webSocketRef.current) {
+        webSocketRef.current.send(
+          JSON.stringify({
+            event: "user_audio",
+            audio: base64Audio,
+          })
+        );
+      }
+    };
+    reader.readAsDataURL(blob);
+  };
+
+  // Timer logic
+  const startTimer = () => {
+    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    timerIntervalRef.current = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          endDebate();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const endDebate = () => {
+    if (webSocketRef.current) {
+      webSocketRef.current.send(JSON.stringify({ event: "end_debate" }));
+    }
+    setIsEnded(true);
+    setIsDebating(false);
+    clearInterval(timerIntervalRef.current!);
+  };
+
+  // For demo purposes: simulate sending a sample user message (voice-to-text conversion)
+  const handleSendDummyMessage = () => {
+    const sampleText = "This is a sample spoken message.";
+    setTranscript((prev) => [...prev, { role: "USER", text: sampleText }]);
+    if (webSocketRef.current) {
+      webSocketRef.current.send(
+        JSON.stringify({
+          event: "user_audio",
+          user_text: sampleText,
+        })
+      );
     }
   };
 
-  const endDebate = async () => {
-    if (!debateActive) return;
-    const res = await fetch("http://localhost:8000/end-debate", {
-      method: "POST",
-    });
-    const data = await res.json();
-    setStatus("Final Report: " + data.report);
-    if (data.ttsAudio) {
-      const audio = new Audio("data:audio/wav;base64," + data.ttsAudio);
-      audio.play();
-    }
-    setDebateActive(false);
-    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+  // Format time as MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? "0" + secs : secs}`;
   };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+      if (webSocketRef.current) webSocketRef.current.close();
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []);
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.title}>VOCA AI Debate Program</h1>
-      <p style={styles.status}>{status}</p>
-      <p style={styles.timer}>{timerText}</p>
-      <button
-        style={styles.button}
-        onClick={() => {
-          if (!recording) startRecording();
-          else stopRecording();
-        }}
-        disabled={!debateActive}
-      >
-        {recording ? "RELEASE TO STOP" : "PRESS TO TALK"}
-      </button>
-      <button style={{ ...styles.button, backgroundColor: "#f44336" }} onClick={endDebate} disabled={!debateActive}>
-        End Debate
-      </button>
-      <button style={{ ...styles.button, backgroundColor: "#2196F3" }} onClick={startDebate} disabled={debateActive}>
-        Start Debate
-      </button>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-black text-white">
+      <HeroSection />
+      <main className="container mx-auto px-6 pt-32 pb-12 space-y-8">
+        <h1 className="text-4xl font-bold text-center animate-fadeIn">AI Debate Arena 🤖</h1>
+        {!isConnected && !isDebating && !isEnded && (
+          <div className="text-center animate-fadeIn">
+            <p className="text-lg mb-4">Ready to challenge your debating skills?</p>
+            <button
+              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-2xl shadow-2xl transition transform hover:scale-105"
+              onClick={initializeDebate}
+            >
+              Start Debate
+            </button>
+          </div>
+        )}
+        {isDebating && (
+          <div className="bg-gray-800 bg-opacity-80 backdrop-blur-lg rounded-3xl p-6 shadow-2xl animate-fadeIn">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center">
+                <span className="text-3xl mr-2">💬</span>
+                <h2 className="text-2xl font-bold">Topic: {topic}</h2>
+              </div>
+              <div className="text-xl font-bold">Time: {formatTime(timer)}</div>
+            </div>
+            <div className="h-64 overflow-y-auto bg-gray-700 bg-opacity-60 rounded-xl p-4 mb-4 shadow-inner">
+              {transcript.map((entry, index) => (
+                <div key={index} className="mb-2">
+                  <span className="font-bold">
+                    {entry.role === "AI" ? "🤖 AI:" : "🧑 You:"}
+                  </span>{" "}
+                  {entry.text}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-center space-x-4">
+              {!isRecording ? (
+                <button
+                  className="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-2xl shadow-2xl transition transform hover:scale-105"
+                  onClick={startRecording}
+                >
+                  Start Speaking 🎤
+                </button>
+              ) : (
+                <button
+                  className="px-6 py-3 bg-red-600 hover:bg-red-700 rounded-2xl shadow-2xl transition transform hover:scale-105"
+                  onClick={stopRecording}
+                >
+                  Stop Speaking ✋
+                </button>
+              )}
+              <button
+                className="px-6 py-3 bg-gray-600 hover:bg-gray-500 rounded-2xl shadow-2xl transition transform hover:scale-105"
+                onClick={endDebate}
+              >
+                End Debate
+              </button>
+            </div>
+            <div className="mt-4 text-center">
+              <button
+                className="px-4 py-2 border border-gray-400 rounded-md hover:bg-gray-700 transition"
+                onClick={handleSendDummyMessage}
+              >
+                Send Sample Message
+              </button>
+            </div>
+          </div>
+        )}
+        {isEnded && (
+          <div className="bg-gray-800 bg-opacity-80 backdrop-blur-lg rounded-3xl p-6 shadow-2xl animate-fadeIn text-center">
+            <h2 className="text-3xl font-bold mb-4">Debate Ended</h2>
+            <div className="mb-4">
+              <h3 className="text-xl font-bold">Transcript</h3>
+              <div className="mt-2 text-left max-h-64 overflow-y-auto bg-gray-700 bg-opacity-60 rounded-xl p-4 shadow-inner">
+                {transcript.map((entry, index) => (
+                  <p key={index} className="mb-1">
+                    <strong>{entry.role === "AI" ? "🤖 AI:" : "🧑 You:"}</strong> {entry.text}
+                  </p>
+                ))}
+              </div>
+            </div>
+            <button
+              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-2xl shadow-2xl transition transform hover:scale-105"
+              onClick={() => router.push("/")}
+            >
+              Back to Home
+            </button>
+          </div>
+        )}
+      </main>
+      <Footer />
     </div>
   );
-};
+}
 
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    maxWidth: "400px",
-    margin: "0 auto",
-    padding: "20px",
-    backgroundColor: "#f0f0f0",
-    textAlign: "center",
-    borderRadius: "8px",
-    marginTop: "50px",
-  },
-  title: {
-    fontFamily: "Arial, sans-serif",
-    fontWeight: "bold",
-    fontSize: "20px",
-    marginBottom: "10px",
-  },
-  status: {
-    fontFamily: "Arial, sans-serif",
-    fontSize: "14px",
-    marginBottom: "5px",
-  },
-  timer: {
-    fontFamily: "Arial, sans-serif",
-    fontSize: "14px",
-    marginBottom: "20px",
-  },
-  button: {
-    fontFamily: "Arial, sans-serif",
-    fontSize: "14px",
-    fontWeight: "bold",
-    color: "white",
-    backgroundColor: "#4CAF50",
-    border: "none",
-    borderRadius: "4px",
-    padding: "10px 20px",
-    margin: "10px 5px",
-    cursor: "pointer",
-  },
-};
-
-export default DebatePage;
+// export default DebatePage;

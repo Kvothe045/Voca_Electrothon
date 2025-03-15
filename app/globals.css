@@ -47,3 +47,61 @@
   }
 }
 
+/* PDF-specific styles for better printing */
+
+/* Avoid page breaks inside important elements */
+.page-break-inside-avoid {
+  page-break-inside: avoid !important;
+}
+
+/* Force page breaks before elements */
+.page-break-before {
+  page-break-before: always !important;
+}
+
+/* Force page breaks after elements */
+.page-break-after {
+  page-break-after: always !important;
+}
+
+/* Specific PDF content styling */
+.pdf-content h1, 
+.pdf-content h2, 
+.pdf-content h3 {
+  page-break-after: avoid;
+}
+
+.pdf-content ul, 
+.pdf-content ol, 
+.pdf-content dl {
+  page-break-before: avoid;
+}
+
+/* Ensure no blank orphaned headers at bottom of page */
+.pdf-content h1:not(:first-child),
+.pdf-content h2:not(:first-child),
+.pdf-content h3:not(:first-child) {
+  break-before: avoid-page;
+}
+
+/* Prevent single lines from being isolated */
+.pdf-content p {
+  widows: 3;
+  orphans: 3;
+}
+
+/* Make sure links are visible in print */
+.pdf-content a {
+  word-wrap: break-word;
+}
+
+/* Section styling for PDF */
+.pdf-content section {
+  margin-bottom: 1.5rem;
+  break-inside: avoid-page;
+}
+
+/* Avoid breaking grid items */
+.pdf-content .grid > div {
+  break-inside: avoid;
+}

@@ -1,0 +1,18 @@
+/* PDF-specific styles */
+@media print {
+    /* Avoid splitting elements across pages */
+    .page-break-inside-avoid {
+      page-break-inside: avoid;
+    }
+    
+    /* Ensure headers don't get separated from their content */
+    h1, h2, h3, h4, h5, h6 {
+      page-break-after: avoid;
+    }
+    
+    /* Avoid orphaned paragraphs */
+    p {
+      orphans: 3;
+      widows: 3;
+    }
+  }
