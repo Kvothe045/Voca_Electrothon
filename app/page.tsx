@@ -230,7 +230,7 @@ export default function VocaLandingPage() {
             <div className="relative w-full max-w-md">
               <div className="absolute -inset-2 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 opacity-75 blur-lg animate-pulse-slow"></div>
               <img 
-                src="/images/girl-speaking.png" 
+                src="/girl.png" 
                 alt="Girl Speaking" 
                 className="relative w-full rounded-2xl shadow-2xl object-cover aspect-[4/3] transition-transform duration-500 hover:scale-105" 
               />
