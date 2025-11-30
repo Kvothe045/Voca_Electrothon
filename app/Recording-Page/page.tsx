@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, Suspense } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -52,11 +52,14 @@ const UploadPopup: React.FC<UploadPopupProps> = ({ videoUrl, onClose, onViewRepo
   );
 };
 
-const RecordingPage: React.FC = () => {
+// --- MAIN LOGIC COMPONENT (Renamed) ---
+const RecordingContent: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
+  
+  // This hook is what caused the build error, so this component must be wrapped in Suspense
+  const searchParams = useSearchParams(); 
   const topicFromQuery = searchParams.get("topic");
 
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -211,100 +214,63 @@ const RecordingPage: React.FC = () => {
       setUploadedVideoUrl(videoUrl);
       setShowPopup(true);
 
-      // // Prepare payload for the analysis endpoint.
-      // const analysisPayload = {
-      //   verificationHash:
-      //     "8214fb8d89789cb42c3aaa797d92db4865b696d01ea36f93835f2208a8f5fbb2760376d0fc8653f4d68b5a49e0cdb263f418529c028970eb1385d951197005e8",
-      //   reportID: "83921234",
-      //   activityName: topic,
-      //   videoID: "57284921",
-      //   videoLink: videoUrl,
-      // };
+      // ---------------------------
+      // 1. POST to the video analysis endpoint
+      // ---------------------------
 
-      // console.log("Sending POST request to video analysis endpoint with payload:", analysisPayload);
+      const analysisPayload = {
+        verificationHash:
+          "8214fb8d89789cb42c3aaa797d92db4865b696d01ea36f93835f2208a8f5fbb2760376d0fc8653f4d68b5a49e0cdb263f418529c028970eb1385d951197005e8",
+        reportID: "83921234",
+        activityName: topic,   // Ensure that 'topic' is defined in your context.
+        videoID: "57284921",
+        videoLink: videoUrl    // Ensure that 'videoUrl' is defined in your context.
+      };
 
-      // // Send the analysis request.
-      // const analysisResponse = await axios.post(
-      //   "http://192.168.103.175:8000/api/videoanalysis",
-      //   analysisPayload,
-      //   { headers: { "Content-Type": "application/json" } }
-      // );
-      // console.log("Video Analysis Response:", analysisResponse.data);
-      // toast.info("Analysis Response: " + JSON.stringify(analysisResponse.data));
+      console.log("Sending POST request to video analysis endpoint with payload:", analysisPayload);
 
-      // // Start long polling GET request for the JSON report.
-      // console.log("Starting long polling GET request for video JSON...");
-      // const videoJsonResponse = await axios.get("http://192.168.103.175:8000//api/returnreport/", {
-      //   headers: { Accept: "application/json" },
-      //   timeout: 0, // Wait indefinitely until the JSON is available.
-      // });
-      // console.log("Video JSON Response:", videoJsonResponse.data);
-      // toast.success("Video JSON Analysis received!");
-
-      // // Store the JSON report in localStorage.
-      // localStorage.setItem("videoReport", JSON.stringify(videoJsonResponse.data));
+      // Send the analysis request.
+      const analysisResponse = await axios.post(
+        "http://192.168.103.175:8000/api/videoanalysis",
+        analysisPayload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        }
+      );
+      console.log("Video Analysis Response:", analysisResponse.data);
+      toast.info("Analysis Response: " + JSON.stringify(analysisResponse.data));
 
       // ---------------------------
-// 1. POST to the video analysis endpoint
-// ---------------------------
+      // 2. POST to the fetch report endpoint (matching the curl command)
+      // ---------------------------
 
-// Prepare payload for the video analysis endpoint.
-const analysisPayload = {
-  verificationHash:
-    "8214fb8d89789cb42c3aaa797d92db4865b696d01ea36f93835f2208a8f5fbb2760376d0fc8653f4d68b5a49e0cdb263f418529c028970eb1385d951197005e8",
-  reportID: "83921234",
-  activityName: topic,    // Ensure that 'topic' is defined in your context.
-  videoID: "57284921",
-  videoLink: videoUrl     // Ensure that 'videoUrl' is defined in your context.
-};
+      const fetchReportPayload = {
+        reportID: "57284921",
+        verificationHash:
+          "8214fb8d89789cb42c3aaa797d92db4865b696d01ea36f93835f2208a8f5fbb2760376d0fc8653f4d68b5a49e0cdb263f418529c028970eb1385d951197005e8"
+      };
 
-console.log("Sending POST request to video analysis endpoint with payload:", analysisPayload);
+      console.log("Sending POST request to fetch report endpoint with payload:", fetchReportPayload);
 
-// Send the analysis request.
-const analysisResponse = await axios.post(
-  "http://192.168.103.175:8000/api/videoanalysis",
-  analysisPayload,
-  {
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    }
-  }
-);
-console.log("Video Analysis Response:", analysisResponse.data);
-toast.info("Analysis Response: " + JSON.stringify(analysisResponse.data));
+      // Send the fetch report request.
+      const fetchReportResponse = await axios.post(
+        "http://192.168.103.175:8000/api/fetchreport",
+        fetchReportPayload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
+        }
+      );
+      console.log("Fetch Report Response:", fetchReportResponse.data);
+      toast.success("Fetch Report Response: " + JSON.stringify(fetchReportResponse.data));
 
-
-// ---------------------------
-// 2. POST to the fetch report endpoint (matching the curl command)
-// ---------------------------
-
-// Prepare payload for the fetch report endpoint.
-const fetchReportPayload = {
-  reportID: "57284921",
-  verificationHash:
-    "8214fb8d89789cb42c3aaa797d92db4865b696d01ea36f93835f2208a8f5fbb2760376d0fc8653f4d68b5a49e0cdb263f418529c028970eb1385d951197005e8"
-};
-
-console.log("Sending POST request to fetch report endpoint with payload:", fetchReportPayload);
-
-// Send the fetch report request.
-const fetchReportResponse = await axios.post(
-  "http://192.168.103.175:8000/api/fetchreport",
-  fetchReportPayload,
-  {
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    }
-  }
-);
-console.log("Fetch Report Response:", fetchReportResponse.data);
-toast.success("Fetch Report Response: " + JSON.stringify(fetchReportResponse.data));
-
-// Optionally, store the fetched report in localStorage.
-localStorage.setItem("videoReport", JSON.stringify(fetchReportResponse.data));
-
+      // Optionally, store the fetched report in localStorage.
+      localStorage.setItem("videoReport", JSON.stringify(fetchReportResponse.data));
 
       // Redirect to the report page.
       router.push("/report-page");
@@ -487,6 +453,16 @@ localStorage.setItem("videoReport", JSON.stringify(fetchReportResponse.data));
       {/* Modal Popup */}
       {showPopup && <UploadPopup videoUrl={uploadedVideoUrl} onClose={handleClosePopup} onViewReport={handleViewReport} />}
     </div>
+  );
+};
+
+// --- WRAPPER COMPONENT ---
+// This acts as the default export and satisfies Next.js 13+ Build requirements
+const RecordingPage: React.FC = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-black text-white">Loading...</div>}>
+      <RecordingContent />
+    </Suspense>
   );
 };
 
