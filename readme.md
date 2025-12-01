@@ -218,7 +218,7 @@ text
 
 ### 1. Clone the Repository
 
-git clone https://github.com/yourusername/VOCA.git
+git clone https://github.com/Kvothe045/Voca_Electrothon
 cd VOCA/app
 
 text
@@ -242,7 +242,7 @@ Update your backend base URL inside:
 - `PreviewActivity.kt`  
 - `ResultActivity.kt`  
 
-private const val BASE_URL = "https://your-backend-url.com/"
+private const val BASE_URL = "https://backend-voca.render.com/"
 
 text
 
@@ -283,4 +283,5 @@ Contributions are welcome!
     Open a Pull Request with a brief description and screenshots if UI-related
 
 For major changes, please open an issue first to discuss what you would like to change.
+
 
