@@ -23,9 +23,9 @@ return (
 <Mic className="h-5 w-5" />
 <span className="font-medium">Practice</span>
 </Link>
-<Link href="/debate-page" className="flex items-center gap-2 hover:text-purple-300 transition">
+<Link href="/interview-page" className="flex items-center gap-2 hover:text-purple-300 transition">
 <MessagesSquare className="h-5 w-5" />
-<span className="font-medium">Debate</span>
+<span className="font-medium">Interview</span>
 </Link>
 <Link href="/myReport" className="flex items-center gap-2 hover:text-purple-300 transition">
 <BarChart3 className="h-5 w-5" />

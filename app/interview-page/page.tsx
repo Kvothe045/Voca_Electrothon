@@ -66,7 +66,7 @@ export default function InterviewPage() {
       formData.append('jd', jd);
       if (resumeFile) formData.append('resume', resumeFile);
 
-      const res = await fetch('http://localhost:8000/upload-context', { method: 'POST', body: formData });
+      const res = await fetch('https://interviewbackend-il43.onrender.com/upload-context', { method: 'POST', body: formData });
       const data = await res.json();
       setSessionId(data.session_id);
 
@@ -90,7 +90,7 @@ export default function InterviewPage() {
         });
       }, 1000);
 
-      const ws = new WebSocket(`ws://localhost:8000/ws/interview/${sessionId}`);
+      const ws = new WebSocket(`https://interviewbackend-il43.onrender.com/ws/interview/${sessionId}`);
 
       ws.onmessage = async (event) => {
         const data = JSON.parse(event.data);

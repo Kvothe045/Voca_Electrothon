@@ -24,7 +24,7 @@ export default function VocaLandingPage() {
   };
 
   const navigateToDebate = () => {
-    router.push("/debate-page");
+    router.push("/interview-page");
   };
 
   // Scroll to debate section
