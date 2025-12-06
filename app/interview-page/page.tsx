@@ -2,7 +2,7 @@
 import 'regenerator-runtime/runtime';
 import { useState, useRef, useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { Bot, User, Clock, Plus, Download, FileText, XCircle, Upload, RefreshCcw, Loader2, Wifi, Server, Coffee, Zap, Sparkles, BrainCircuit } from 'lucide-react';
+import { Bot, User, Clock, Plus, Download, FileText, XCircle, Upload, RefreshCcw, Loader2, Wifi, Server, Coffee, Zap, Sparkles, BrainCircuit, AlertTriangle } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
 const SILENCE_THRESHOLD = 10; // 10 Seconds
@@ -89,6 +89,8 @@ export default function InterviewPage() {
   // UI Refs
   const transcriptEndRef = useRef<HTMLDivElement | null>(null);
   const liveTextEndRef = useRef<HTMLSpanElement | null>(null);
+  // NEW: Ref for Mobile scrolling
+  const liveTextEndRefMobile = useRef<HTMLDivElement | null>(null);
 
   const {
     transcript,
@@ -164,7 +166,10 @@ export default function InterviewPage() {
 
   useEffect(() => {
     if (transcript.length > 0) {
+        // Desktop Scroll
         liveTextEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        // Mobile Scroll (Fix for issue 1)
+        liveTextEndRefMobile.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   }, [transcript]);
 
@@ -400,7 +405,7 @@ export default function InterviewPage() {
 
   return (
     // Use h-[100dvh] for mobile browsers to handle address bars correctly
-    <div className="h-[100dvh] bg-gray-950 text-gray-100 font-sans flex flex-col overflow-hidden">
+    <div className="h-[100dvh] bg-gray-950 text-gray-100 font-sans flex flex-col overflow-hidden relative">
       
       {/* HEADER */}
       <div className="h-14 md:h-16 flex-none bg-gray-900 border-b border-gray-800 px-4 md:px-6 flex justify-between items-center shadow-lg z-50 relative">
@@ -457,6 +462,22 @@ export default function InterviewPage() {
              </div>
          )}
       </div>
+
+      {/* ALERT: LESS THAN 1 MINUTE (SOFT POP-UP) */}
+      {step === 2 && globalTime <= 60 && globalTime > 0 && status !== 'Feedback' && (
+         <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[60] animate-in fade-in slide-in-from-top-4">
+             <div className="bg-orange-600/90 backdrop-blur-md text-white px-4 py-2 rounded-full shadow-[0_0_20px_rgba(234,88,12,0.5)] flex items-center gap-3 border border-orange-400/50">
+                <AlertTriangle size={18} className="animate-pulse text-orange-200" />
+                <span className="text-xs md:text-sm font-bold">Less than 1m left!</span>
+                <button 
+                   onClick={() => setGlobalTime(t => t + 60)} 
+                   className="bg-white text-orange-600 hover:bg-gray-100 px-3 py-1 rounded-full text-xs font-bold transition-colors shadow-sm flex items-center gap-1"
+                >
+                   <Plus size={12} /> 1 Min
+                </button>
+             </div>
+         </div>
+      )}
 
       {/* MAIN CONTENT */}
       <div className="flex-1 p-4 md:p-6 overflow-hidden flex flex-col">
@@ -639,9 +660,17 @@ export default function InterviewPage() {
                                  status}
                          </h2>
                          
-                         {/* MOBILE ONLY CAPTION */}
-                         <div className="lg:hidden w-full text-center mt-2 h-10 overflow-hidden">
-                            {listening ? <span className="text-xs text-gray-400 italic">"{transcript}"</span> : <span className="text-gray-600 text-xs">...</span>}
+                         {/* MOBILE ONLY CAPTION - FIXED SCROLLING */}
+                         <div className="lg:hidden w-full text-center mt-2 h-14 overflow-y-auto">
+                            {listening ? (
+                                <>
+                                  <span className="text-xs text-gray-400 italic">"{transcript}"</span>
+                                  {/* Dummy div to scroll to bottom */}
+                                  <div ref={liveTextEndRefMobile} className="h-1"></div>
+                                </>
+                            ) : (
+                                <span className="text-gray-600 text-xs">...</span>
+                            )}
                          </div>
 
                          {/* DESKTOP CAPTION BOX */}
