@@ -156,95 +156,95 @@ export default function VocaLandingPage() {
             </div>
 
             {/* --- IMPROVED HERO CARDS (ALIGNED BUTTONS) --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl w-full">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl w-full">
+    
+    {/* 1. INTERVIEW CARD */}
+    <div 
+        onClick={navigateToInterview}
+        className="group relative cursor-pointer flex flex-col h-full"
+    >
+        {/* Glowing Border Gradient */}
+        <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-3xl opacity-70 group-hover:opacity-100 blur-sm group-hover:blur-md transition-all duration-500"></div>
+        
+        <div className="relative h-full bg-[#0a0a0e] rounded-[23px] overflow-hidden flex flex-col flex-1">
+            {/* Internal Grid */}
+            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#4f46e5_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            
+            <div className="p-8 relative z-10 flex flex-col flex-1 items-center text-center">
                 
-                {/* 1. INTERVIEW CARD */}
-                <div 
-                    onClick={navigateToInterview}
-                    className="group relative cursor-pointer flex flex-col h-full"
-                >
-                    {/* Glowing Border Gradient */}
-                    <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-3xl opacity-70 group-hover:opacity-100 blur-sm group-hover:blur-md transition-all duration-500"></div>
-                    
-                    <div className="relative h-full bg-[#0a0a0e] rounded-[23px] overflow-hidden flex flex-col flex-1">
-                        {/* Internal Grid */}
-                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#4f46e5_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                        
-                        <div className="p-8 relative z-10 flex flex-col flex-1 items-center text-center">
-                            
-                            {/* LIVE AVATAR ANIMATION */}
-                            <div className="relative w-24 h-24 mb-6 mt-2 flex-none">
-                                <div className="absolute inset-0 rounded-full border-4 border-t-purple-500 border-r-blue-500 border-b-purple-500 border-l-blue-500 animate-spin opacity-80 shadow-[0_0_30px_rgba(168,85,247,0.4)]"></div>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <BrainCircuit size={40} className="text-blue-400 animate-pulse drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-                                </div>
-                                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gray-900 border border-blue-500/50 text-[10px] text-blue-300 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
-                                    AI LISTENING
-                                </div>
-                            </div>
-
-                            <h3 className="text-3xl font-bold text-white mb-2 group-hover:text-blue-200 transition-colors">Interview Prep</h3>
-                            <p className="text-gray-400 text-sm mb-6 leading-relaxed max-w-sm flex-1">
-                                Face our AI Recruiter in a realistic simulation. Get grilled on your resume, receive instant feedback, and get hired.
-                            </p>
-
-                            {/* PUSH BUTTON TO BOTTOM */}
-                            <div className="w-full mt-auto">
-                                <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-6 rounded-xl shadow-lg shadow-blue-900/20 group-hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-2">
-                                    Enter Simulation <ArrowRight size={18} />
-                                </Button>
-                            </div>
-                        </div>
+                {/* LIVE AVATAR ANIMATION */}
+                <div className="relative w-24 h-24 mb-6 mt-2 flex-none">
+                    <div className="absolute inset-0 rounded-full border-4 border-t-purple-500 border-r-blue-500 border-b-purple-500 border-l-blue-500 animate-spin opacity-80 shadow-[0_0_30px_rgba(168,85,247,0.4)]"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <BrainCircuit size={40} className="text-blue-400 animate-pulse drop-shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+                    </div>
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gray-900 border border-blue-500/50 text-[10px] text-blue-300 font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                        AI LISTENING
                     </div>
                 </div>
 
-                {/* 2. SPEECH & VIDEO CARD */}
-                <div 
-                    onClick={navigateToCommSkills}
-                    className="group relative cursor-pointer flex flex-col h-full"
-                >
-                    {/* Stronger Border Gradient */}
-                    <div className="absolute -inset-[1px] bg-gradient-to-r from-purple-500 to-pink-600 rounded-3xl opacity-60 group-hover:opacity-100 blur-sm transition-all duration-500"></div>
-                    
-                    {/* Brighter Background & Shadow */}
-                    <div className="relative h-full bg-[#0e0e12] rounded-[23px] overflow-hidden flex flex-col flex-1 hover:bg-[#121218] transition-colors shadow-[0_0_40px_rgba(168,85,247,0.1)]">
-                        <div className="p-8 relative z-10 flex flex-col flex-1">
-                            
-                            <div className="flex justify-between items-start mb-6 flex-none">
-                                <div className="w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center border border-purple-500/40 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(168,85,247,0.3)]">
-                                    <Video className="text-purple-400 w-6 h-6" />
-                                </div>
-                                <div className="px-3 py-1.5 rounded-full bg-purple-900/40 border border-purple-500/40 text-[10px] font-bold text-purple-200 uppercase tracking-wider shadow-sm">
-                                    AI Vision V2
-                                </div>
-                            </div>
+                <h3 className="text-3xl font-bold text-white mb-2 group-hover:text-blue-200 transition-colors">Interview Prep</h3>
+                <p className="text-gray-400 text-sm mb-6 leading-relaxed max-w-sm flex-1">
+                    Face our AI Recruiter in a realistic simulation. Get grilled on your resume, receive instant feedback, and get hired.
+                </p>
 
-                            <h3 className="text-3xl font-bold text-white mb-2">Speech & Video</h3>
-                            <p className="text-gray-300 text-sm mb-6 leading-relaxed flex-1">
-                                Record yourself on any topic. Our vision engine tracks your eye contact, gestures, and fillers to build your confidence.
-                            </p>
-
-                             {/* Visualizer Animation */}
-                            <div className="mt-auto h-12 flex items-center justify-center gap-1 mb-6 opacity-80 group-hover:opacity-100 transition-opacity flex-none">
-                                {[1,2,3,4,5,6,7,8,9,10].map(i => (
-                                    <div key={i} className="w-1.5 bg-gradient-to-t from-purple-600 via-pink-500 to-purple-400 rounded-full animate-bounce shadow-[0_0_10px_rgba(236,72,153,0.5)]" style={{height: `${Math.random() * 25 + 10}px`, animationDelay: `${i * 0.1}s`}}></div>
-                                ))}
-                            </div>
-
-                            {/* PUSH BUTTON TO BOTTOM - ALIGNED WITH CARD 1 */}
-                            <div className="w-full mt-auto">
-                                <Button className="w-full bg-white text-black hover:bg-gray-200 font-bold py-6 rounded-xl transition-all flex items-center justify-center gap-2">
-                                    Activate Vision Engine <ArrowRight size={18} />
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                {/* PUSH BUTTON TO BOTTOM */}
+                <div className="w-full mt-auto">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-6 rounded-xl shadow-lg shadow-blue-900/20 group-hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-2">
+                        Enter Simulation <ArrowRight size={18} />
+                    </Button>
                 </div>
-
             </div>
         </div>
-      </div>
+    </div>
 
+    {/* 2. SPEECH & VIDEO CARD 
+    <div 
+        onClick={navigateToCommSkills}
+        className="group relative cursor-pointer flex flex-col h-full"
+    >
+        // Stronger Border Gradient
+        <div className="absolute -inset-[1px] bg-gradient-to-r from-purple-500 to-pink-600 rounded-3xl opacity-60 group-hover:opacity-100 blur-sm transition-all duration-500"></div>
+        
+        // Brighter Background & Shadow
+        <div className="relative h-full bg-[#0e0e12] rounded-[23px] overflow-hidden flex flex-col flex-1 hover:bg-[#121218] transition-colors shadow-[0_0_40px_rgba(168,85,247,0.1)]">
+            <div className="p-8 relative z-10 flex flex-col flex-1">
+                
+                <div className="flex justify-between items-start mb-6 flex-none">
+                    <div className="w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center border border-purple-500/40 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+                        <Video className="text-purple-400 w-6 h-6" />
+                    </div>
+                    <div className="px-3 py-1.5 rounded-full bg-purple-900/40 border border-purple-500/40 text-[10px] font-bold text-purple-200 uppercase tracking-wider shadow-sm">
+                        AI Vision V2
+                    </div>
+                </div>
+
+                <h3 className="text-3xl font-bold text-white mb-2">Speech & Video</h3>
+                <p className="text-gray-300 text-sm mb-6 leading-relaxed flex-1">
+                    Record yourself on any topic. Our vision engine tracks your eye contact, gestures, and fillers to build your confidence.
+                </p>
+
+                // Visualizer Animation
+                <div className="mt-auto h-12 flex items-center justify-center gap-1 mb-6 opacity-80 group-hover:opacity-100 transition-opacity flex-none">
+                    {[1,2,3,4,5,6,7,8,9,10].map(i => (
+                        <div key={i} className="w-1.5 bg-gradient-to-t from-purple-600 via-pink-500 to-purple-400 rounded-full animate-bounce shadow-[0_0_10px_rgba(236,72,153,0.5)]" style={{height: `${Math.random() * 25 + 10}px`, animationDelay: `${i * 0.1}s`}}></div>
+                    ))}
+                </div>
+
+                // PUSH BUTTON TO BOTTOM - ALIGNED WITH CARD 1
+                <div className="w-full mt-auto">
+                    <Button className="w-full bg-white text-black hover:bg-gray-200 font-bold py-6 rounded-xl transition-all flex items-center justify-center gap-2">
+                        Activate Vision Engine <ArrowRight size={18} />
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </div>
+    */}
+
+    </div>
+  </div>
+</div>
       {/* --- SECTION: HOW VOCA WORKS (WORKFLOW) --- */}
       <section id="workflow" className="py-24 bg-[#050507] relative overflow-hidden">
         {/* Connection Line Background */}
@@ -484,7 +484,7 @@ export default function VocaLandingPage() {
                 <a href="#" className="hover:text-purple-400 transition-colors">Community</a>
             </div>
             <div className="text-gray-600 text-sm">
-                &copy; 2025 VOCA. Crafted by Aryan, Monish & Swarit.
+                &copy; 2026 VOCA
             </div>
           </div>
       </footer>
