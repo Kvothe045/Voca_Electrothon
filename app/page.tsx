@@ -156,12 +156,12 @@ export default function VocaLandingPage() {
             </div>
 
             {/* --- IMPROVED HERO CARDS (ALIGNED BUTTONS) --- */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl w-full">
+<div className="flex justify-center gap-8 max-w-5xl w-full mx-auto">
     
     {/* 1. INTERVIEW CARD */}
     <div 
         onClick={navigateToInterview}
-        className="group relative cursor-pointer flex flex-col h-full"
+        className="group relative cursor-pointer flex flex-col h-full w-full max-w-md"
     >
         {/* Glowing Border Gradient */}
         <div className="absolute -inset-[1px] bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-3xl opacity-70 group-hover:opacity-100 blur-sm group-hover:blur-md transition-all duration-500"></div>
@@ -245,6 +245,8 @@ export default function VocaLandingPage() {
     </div>
   </div>
 </div>
+
+      
       {/* --- SECTION: HOW VOCA WORKS (WORKFLOW) --- */}
       <section id="workflow" className="py-24 bg-[#050507] relative overflow-hidden">
         {/* Connection Line Background */}
