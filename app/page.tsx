@@ -198,7 +198,7 @@ export default function VocaLandingPage() {
         </div>
     </div>
 
-    {/* 2. SPEECH & VIDEO CARD 
+    {// 2. SPEECH & VIDEO CARD 
     <div 
         onClick={navigateToCommSkills}
         className="group relative cursor-pointer flex flex-col h-full"
@@ -240,7 +240,7 @@ export default function VocaLandingPage() {
             </div>
         </div>
     </div>
-    */}
+    }
 
     </div>
   </div>
