@@ -203,10 +203,10 @@ export default function VocaLandingPage() {
         onClick={navigateToCommSkills}
         className="group relative cursor-pointer flex flex-col h-full"
     >
-        // Stronger Border Gradient
+        {/* // Stronger Border Gradient */}
         <div className="absolute -inset-[1px] bg-gradient-to-r from-purple-500 to-pink-600 rounded-3xl opacity-60 group-hover:opacity-100 blur-sm transition-all duration-500"></div>
         
-        // Brighter Background & Shadow
+        {/* // Brighter Background & Shadow */}
         <div className="relative h-full bg-[#0e0e12] rounded-[23px] overflow-hidden flex flex-col flex-1 hover:bg-[#121218] transition-colors shadow-[0_0_40px_rgba(168,85,247,0.1)]">
             <div className="p-8 relative z-10 flex flex-col flex-1">
                 
@@ -224,14 +224,14 @@ export default function VocaLandingPage() {
                     Record yourself on any topic. Our vision engine tracks your eye contact, gestures, and fillers to build your confidence.
                 </p>
 
-                // Visualizer Animation
+                {/* // Visualizer Animation */}
                 <div className="mt-auto h-12 flex items-center justify-center gap-1 mb-6 opacity-80 group-hover:opacity-100 transition-opacity flex-none">
                     {[1,2,3,4,5,6,7,8,9,10].map(i => (
                         <div key={i} className="w-1.5 bg-gradient-to-t from-purple-600 via-pink-500 to-purple-400 rounded-full animate-bounce shadow-[0_0_10px_rgba(236,72,153,0.5)]" style={{height: `${Math.random() * 25 + 10}px`, animationDelay: `${i * 0.1}s`}}></div>
                     ))}
                 </div>
 
-                // PUSH BUTTON TO BOTTOM - ALIGNED WITH CARD 1
+                {/* // PUSH BUTTON TO BOTTOM - ALIGNED WITH CARD 1 */}
                 <div className="w-full mt-auto">
                     <Button className="w-full bg-white text-black hover:bg-gray-200 font-bold py-6 rounded-xl transition-all flex items-center justify-center gap-2">
                         Activate Vision Engine <ArrowRight size={18} />
